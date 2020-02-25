@@ -209,14 +209,6 @@ module.exports = function(RED) {
         });
     };
 
-    function constructFullPath(entry) {
-        var parentPath = entry.path_collection.entries
-            .filter(function (e) { return e.id !== "0"; })
-            .map(function (e) { return e.name; })
-            .join('/');
-        return (parentPath !== "" ? parentPath+'/' : "") + entry.name;
-    }
-
     RED.httpAdmin.get('/box-credentials/auth', function(req, res) {
         if (!req.query.clientId || !req.query.clientSecret ||
             !req.query.id || !req.query.callback) {

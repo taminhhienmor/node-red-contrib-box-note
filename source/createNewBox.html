@@ -142,7 +142,7 @@
 })();
 </script>
 
-<script type="text/x-red" data-template-name="box out">
+<script type="text/x-red" data-template-name="box">
     <div class="form-row">
         <label for="node-input-box"><i class="fa fa-user"></i> <span data-i18n="box.label.box"></span></label>
         <input type="text" id="node-input-box">
@@ -157,7 +157,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="box out">
+<script type="text/x-red" data-help-name="box">
     <p>Box out node. Uploads content to Box.</p>
     <p>The filename on Box is taken from the node <b>filename</b> property or the <code>msg.filename</code> property.</p>
     <p>The content is taken from either the file pointed at by the node <b>localFilename</b> property, the
@@ -165,7 +165,7 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('box out',{
+    RED.nodes.registerType('box',{
         category: 'note-box',
         color:"#C0DEED",
         defaults: {
