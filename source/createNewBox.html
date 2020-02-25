@@ -1,172 +1,185 @@
+<!--
+  Copyright 2014 IBM Corp.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<script type="text/x-red" data-template-name="box-credentials">
+    <div id="node-config-box-client-keys">
+        <div class="form-row">
+            <p style="margin-top: 10px;"><b>1.</b> <span data-i18n="box.label.create"></span> <a href="https://app.box.com/developers/" target="_blank" style="text-decoration:underline;">Box</a></p>
+        </div>
+        <div class="form-tips" id="node-config-box-tooltip">
+        </div>
+        <div class="form-row">
+            <p style="margin-top: 10px;"><b>2.</b> <span data-i18n="box.label.copy"></span>:</p>
+        </div>
+        <div class="form-row">
+            <label style="margin-left: 10px; margin-right: -10px;" for="node-config-input-clientId"><i class="fa fa-user"></i> <span data-i18n="box.label.clientid"></span></label>
+            <input type="password" id="node-config-input-clientId">
+        </div>
+        <div class="form-row">
+            <label style="margin-left: 10px; margin-right: -10px;" for="node-config-input-clientSecret"><i class="fa fa-key"></i> <span data-i18n="box.label.secret"></span></label>
+            <input type="password" id="node-config-input-clientSecret">
+        </div>
+        <div class="form-row">
+           <label>&nbsp;</label>
+           <a class="btn" id="node-config-start-auth" href="#" target="_blank"><span data-i18n="box.label.authenticate"></span></a>
+        </div>
+    </div>
+    <div id="node-config-box">
+        <div class="form-row">
+            <label><i class="fa fa-user"></i> <span data-i18n="box.label.boxuser"></span></label><span id="node-config-box-displayName" class="input-xlarge uneditable-input"></span>
+        </div>
+        <input type="hidden" id="node-config-input-displayName">
+    </div>
+</script>
+
 <script type="text/javascript">
-    RED.nodes.registerType('addEvent',{
-        category: 'Google calendar event',
+(function() {
+    RED.nodes.registerType('box-credentials',{
+        category: 'config',
+        defaults: {
+            displayName: {value:""}
+        },
+        credentials: {
+            displayName: {type:"text"},
+            clientId: { type: "password"},
+            clientSecret: { type: "password"}
+        },
+        label: function() {
+            return this.displayName || 'Box';
+        },
+        exportable: false,
+        oneditprepare: function() {
+            var id = this.id;
+            var pathname = document.location.pathname;
+            if (pathname.slice(-1) != "/") {
+                pathname += "/";
+            }
+            var callback = location.protocol + "//" +
+                           location.hostname +
+                           (location.port? ":"+location.port:"")+
+                           pathname + "box-credentials/auth/callback";
+            var tip = this._("box.tip.redirect",{callback:callback});
+            $("#node-config-box-tooltip").html(tip);
+
+            function updateBoxAuthButton() {
+                var v1 = $("#node-config-input-clientId").val();
+                var v2 = $("#node-config-input-clientSecret").val();
+                $("#node-config-start-auth").toggleClass("disabled",(v1.length === 0 || v2.length === 0));
+            }
+            $("#node-config-input-clientId").on('change keydown paste input',updateBoxAuthButton);
+            $("#node-config-input-clientSecret").on('change keydown paste input',updateBoxAuthButton);
+
+            function updateBoxDisplayName(dn) {
+                $("#node-config-box-client-keys").hide();
+                $("#node-config-box").show();
+                $("#node-config-input-displayName").val(dn);
+                $("#node-config-box-displayName").html(dn);
+            }
+
+            function pollBoxCredentials() {
+                $.getJSON('credentials/box-credentials/'+id,function(data) {
+                    if (data.displayName) {
+                        $("#node-config-dialog-ok").button("enable");
+                        updateBoxDisplayName(data.displayName);
+                        delete window.boxConfigNodeIntervalId;
+                    } else {
+                        window.boxConfigNodeIntervalId = window.setTimeout(pollBoxCredentials,2000);
+                    }
+                });
+             }
+
+            updateBoxAuthButton();
+
+            if (this.displayName) {
+                updateBoxDisplayName(this.displayName);
+            } else {
+                $("#node-config-box-client-keys").show();
+                $("#node-config-box").hide();
+                $("#node-config-dialog-ok").button("disable");
+            }
+
+            $("#node-config-start-auth").mousedown(function() {
+                var clientId = $("#node-config-input-clientId").val();
+                var clientSecret = $("#node-config-input-clientSecret").val();
+                var url = 'box-credentials/auth?id='+id+'&clientId='+clientId+"&clientSecret="+clientSecret+"&callback="+encodeURIComponent(callback);
+                $(this).attr("href",url);
+                window.boxConfigNodeIntervalId = window.setTimeout(pollBoxCredentials,2000);
+            });
+            $("#node-config-start-auth").click(function(e) {
+                var clientId = $("#node-config-input-clientId").val();
+                var clientSecret = $("#node-config-input-clientSecret").val();
+                if (clientId === "" || clientSecret === "") {
+                    e.preventDefault();
+                }
+            });
+        },
+        oneditsave: function() {
+            if (window.boxConfigNodeIntervalId) {
+                window.clearTimeout(window.boxConfigNodeIntervalId);
+                delete window.boxConfigNodeIntervalId;
+            }
+        },
+        oneditcancel: function() {
+            if (window.boxConfigNodeIntervalId) {
+                window.clearTimeout(window.boxConfigNodeIntervalId);
+                delete window.boxConfigNodeIntervalId;
+            }
+        }
+    });
+})();
+</script>
+
+<script type="text/x-red" data-template-name="box out">
+    <div class="form-row">
+        <label for="node-input-box"><i class="fa fa-user"></i> <span data-i18n="box.label.box"></span></label>
+        <input type="text" id="node-input-box">
+    </div>
+    <div class="form-row node-input-filename">
+         <label for="node-input-filename"><i class="fa fa-file"></i> <span data-i18n="box.label.filename"></span></label>
+         <input type="text" id="node-input-filename" data-i18n="[placeholder]box.placeholder.filename">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="box.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]box.placeholder.name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="box out">
+    <p>Box out node. Uploads content to Box.</p>
+    <p>The filename on Box is taken from the node <b>filename</b> property or the <code>msg.filename</code> property.</p>
+    <p>The content is taken from either the file pointed at by the node <b>localFilename</b> property, the
+    <code>msg.localFilename</code> property, or the actual contents of the <code>msg.payload</code> property.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('box out',{
+        category: 'note-box',
         color:"#C0DEED",
         defaults: {
-            google: {type:"google-credentials",required:true},
-            tittle: {value:""},
-            description: {value:""},
-            location: {value:""},
-            start: {value:""},
-            end: {value:""},
-            attend: {value:""},
-            email1: {value:""},
-            name1: {value:""},
-            email2: {value:""},
-            name2: {value:""},
-            email3: {value:""},
-            name3: {value:""},
-            email4: {value:""},
-            name4: {value:""},
-            email5: {value:""},
-            name5: {value:""}
+            box: {type:"box-credentials",required:true},
+            filename: {value:""},
+            localFilename: {value:""},
+            name: {value:""}
         },
         inputs:1,
         outputs:1,
-        icon: "og-img.png",
-        paletteLabel: 'Add Event',
+        icon: "box-img.png",
+        align: "right",
         label: function() {
-            return this.name||"Add Event";
+            return this.name||this.filename||this.localFilename||'Box';
         }
     });
-
-    function selectNone() {
-        document.getElementById("grpOption1").style.display = "none";
-        document.getElementById("grpOption2").style.display = "none";
-        document.getElementById("grpOption3").style.display = "none";
-        document.getElementById("grpOption4").style.display = "none";
-        document.getElementById("grpOption5").style.display = "none";
-    }
-
-    function selectAttendPerson(nameSelect)
-    {
-        if(nameSelect) {
-            switch (parseInt(nameSelect.value)) {
-            case 0:
-                selectNone();
-                break;
-            case 1:
-                selectNone();
-                document.getElementById("grpOption1").style.display = "block";            
-                break;
-            case 2:
-                selectNone();
-                document.getElementById("grpOption1").style.display = "block";
-                document.getElementById("grpOption2").style.display = "block";  
-                break;
-            case 3:
-                selectNone();
-                document.getElementById("grpOption1").style.display = "block";
-                document.getElementById("grpOption2").style.display = "block";
-                document.getElementById("grpOption3").style.display = "block";
-                break;
-            case 4:
-                selectNone();
-                document.getElementById("grpOption1").style.display = "block";
-                document.getElementById("grpOption2").style.display = "block";
-                document.getElementById("grpOption3").style.display = "block";
-                document.getElementById("grpOption4").style.display = "block";
-                break;
-            case 5:
-                selectNone();
-                document.getElementById("grpOption1").style.display = "block";
-                document.getElementById("grpOption2").style.display = "block";
-                document.getElementById("grpOption3").style.display = "block";
-                document.getElementById("grpOption4").style.display = "block";
-                document.getElementById("grpOption5").style.display = "block";
-                break;
-            default:
-                selectNone();   
-                break;
-            }                        
-        }
-        else {
-            selectNone();
-        }
-    }
 </script>
-
-<script type="text/x-red" data-template-name="addEvent">
-    <div class="form-row">
-        <label for="node-input-google"><i class="fa fa-user"></i> <span data-i18n="calendar.label.google"></span></label>
-        <input type="text" id="node-input-google">
-    </div>
-    <div class="form-row">
-        <label for="node-input-tittle"><i class="icon-tag"></i> Tittle</label>
-        <input type="text" id="node-input-tittle" placeholder="Tittle">
-    </div>
-    <div class="form-row">
-        <label for="node-input-description"><i class="icon-tag"></i> description </label>
-        <input type="text" id="node-input-description" placeholder="description">
-    </div>
-    <div class="form-row">
-        <label for="node-input-location"><i class="icon-tag"></i> location</label>
-        <input type="text" id="node-input-location" placeholder="location">
-    </div>
-    <div class="form-row">
-        <label for="node-input-start"><i class="icon-tag"></i> start</label>
-        <input type="text" id="node-input-start" placeholder="Feb 13, 2020 05:15:00">
-    </div>
-    <div class="form-row">
-        <label for="node-input-end"><i class="icon-tag"></i> end</label>
-        <input type="text" id="node-input-end" placeholder="Feb 13, 2020 06:15:00">
-    </div>
-    <div class="form-row">
-        <label for="node-input-attend"><i class="icon-tag"></i> attend</label>
-        <select id="node-input-attend" onchange="selectAttendPerson(this);">
-            <option value="0"></option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-        </select>
-        <label for="node-input-attend"> person</label>    
-        <div id="grpOption1" style="display:none;">
-            <div>
-                <label for="node-input-email1"><i class="icon-tag"></i> email1</label>
-                <input type="text" id="node-input-email1" placeholder="john@example.com">
-                <label for="node-input-name1"><i class="icon-tag"></i> name1</label>
-                <input type="text" id="node-input-name1" placeholder="John">
-            </div>
-        </div>
-        <div id="grpOption2" style="display:none;">
-            <div>
-                <label for="node-input-email2"><i class="icon-tag"></i> email2</label>
-                <input type="text" id="node-input-email2" placeholder="john@example.com">
-                <label for="node-input-name2"><i class="icon-tag"></i> name2</label>
-                <input type="text" id="node-input-name2" placeholder="John">
-            </div>
-        </div>
-        <div id="grpOption3" style="display:none;">
-            <div>
-                <label for="node-input-email3"><i class="icon-tag"></i> email3</label>
-                <input type="text" id="node-input-email3" placeholder="john@example.com">
-                <label for="node-input-name3"><i class="icon-tag"></i> name3</label>
-                <input type="text" id="node-input-name3" placeholder="John">
-            </div>
-        </div>
-        <div id="grpOption4" style="display:none;">
-            <div>
-                <label for="node-input-email4"><i class="icon-tag"></i> email4</label>
-                <input type="text" id="node-input-email4" placeholder="john@example.com">
-                <label for="node-input-name4"><i class="icon-tag"></i> name4</label>
-                <input type="text" id="node-input-name4" placeholder="John">
-            </div>
-        </div>
-        <div id="grpOption5" style="display:none;">
-            <div>
-                <label for="node-input-email5"><i class="icon-tag"></i> email5</label>
-                <input type="text" id="node-input-email5" placeholder="john@example.com">
-                <label for="node-input-name5"><i class="icon-tag"></i> name5</label>
-                <input type="text" id="node-input-name5" placeholder="John">
-            </div>
-        </div>
-    </div>
-    
-</script>
-
-<script type="text/html" data-help-name="addEvent">
-    <p>A simple node that converts the message payloads into all lower-case characters</p>
-</script>
-

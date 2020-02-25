@@ -22,17 +22,27 @@
     ],
     "node-red": {
         "nodes": {
-            "google-api-config": "source/google.js",
             "createNewBox": "source/createNewBox.js"
         }
     },
     "dependencies": {
+        "aws-sdk": "^2.597.0",
         "backoff": "^2.5.0",
         "clone": "^2.1.2",
-        "fs-extra": "^8.1.0",		
-        "dropbox",
+        "dropbox": "^2.5.10",
+        "fs-extra": "^8.1.0",
+        "instagram-node": "^0.5.8",
+        "is-utf8": "^0.2.1",
+        "minimatch": "^3.0.4",
+        "mocha": "^6.2.2",
+        "nock": "^11.7.1",
         "node-red": "~1.0.3",
         "oauth": "~0.9.11",
-        "request": "^2.88.0"
+        "request": "^2.88.0",
+        "should": "^13.2.3",
+        "should-sinon": "^0.0.6",
+        "sinon": "~8.0.2",
+        "supertest": "^4.0.2",
+        "xml2js": "^0.4.0"
     }
 }

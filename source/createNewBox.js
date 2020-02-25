@@ -1,103 +1,403 @@
-var request = require('request');
+/**
+ * Copyright 2014 IBM Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **/
+
 module.exports = function(RED) {
     "use strict";
-    function addEvent(n) {
+    var crypto = require("crypto");
+    var fs = require("fs");
+    var request = require("request");
+    var url = require("url");
+    var minimatch = require("minimatch");
+
+    function BoxNode(n) {
         RED.nodes.createNode(this,n);
-            
-        this.google = RED.nodes.getNode(n.google);
-        var arrAttend = [];        
-        if (n.attend > 0) {
-            for (let index = 1; index < parseInt(n.attend) + 1; index++) {
-                if(n["email" + index] || n["name" + index]) {
-                    if (validateEmail(n["email" + index])) {
-                        arrAttend.push({
-                            email: n["email" + index] || '',
-                            displayName: n["name" + index] || ''
-                        })             
-                    }
-                }
-            }            
-        }
-
-        var api = 'https://www.googleapis.com/calendar/v3/calendars/'        
-        var newObj = {
-            summary: n.tittle,
-            description: n.description,
-            location: n.location,
-            start: {dateTime: new Date(n.start)},
-            end: {dateTime: new Date(n.end)},
-            attendees: arrAttend
-        }
-        
-
-        this.calendar = n.calendar || 'primary';
-        this.ongoing = n.ongoing || false;
-
-        if (!this.google || !this.google.credentials.accessToken) {
-            this.warn(RED._("calendar.warn.no-credentials"));
-            return;
-        }
-
-        var node = this;
-        node.status({fill:"blue",shape:"dot",text:"calendar.status.querying"});
-        calendarList(node, function(err) {
-            if (err) {
-                node.error(err,{});
-                node.status({fill:"red",shape:"ring",text:"calendar.status.failed"});
-                return;
-            }
-            node.status({});
-            var linkUrl = api + node.calendars.primary.id + '/events'
-            var opts = {
-                method: "POST",
-                url: linkUrl,
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + node.google.credentials.accessToken
-                },
-                body: JSON.stringify(newObj)
-            };
-
-            node.on('input', function(msg) {
-                request(opts, function (error, response, body) {
-            
-                    if (JSON.parse(body).kind == "calendar#event") {
-                        msg.payload = "Success"
-                    } else {
-                        msg.payload = "Fail"
-                    }
-                    
-                    node.send(msg);
-                })
-            });            
-        });
     }
-    RED.nodes.registerType("addEvent", addEvent);
+    RED.nodes.registerType("box-credentials", BoxNode, {
+        credentials: {
+            displayName: {type:"text"},
+            clientId: {type:"text"},
+            clientSecret: {type:"password"},
+            accessToken: {type:"password"},
+            refreshToken: {type:"password"},
+            expireTime: {type:"password"}
+        }
+    });
 
-    function calendarList(node, cb) {
-        node.calendars = {};
-        node.google.request('https://www.googleapis.com/calendar/v3/users/me/calendarList', function(err, data) {
+    BoxNode.prototype.refreshToken = function(cb) {
+        var credentials = this.credentials;
+        var node = this;
+        //console.log("refreshing token: " + credentials.refreshToken);
+        if (!credentials.refreshToken) {
+            // TODO: add a timeout to make sure we make a request
+            // every so often (if no flows trigger one) to ensure the
+            // refresh token does not expire
+            node.error(RED._("box.error.no-refresh-token"));
+            return cb(RED._("box.error.no-refresh-token"));
+        }
+        request.post({
+            url: 'https://api.box.com/oauth2/token',
+            json: true,
+            form: {
+                grant_type: 'refresh_token',
+                client_id: credentials.clientId,
+                client_secret: credentials.clientSecret,
+                refresh_token: credentials.refreshToken,
+            },
+        }, function(err, result, data) {
             if (err) {
-                cb(RED._("calendar.error.fetch-failed", {message:err.toString()}));
+                node.error(RED._("box.error.token-request-error",{err:err}));
                 return;
             }
             if (data.error) {
-                cb(RED._("calendar.error.fetch-failed", {message:data.error.message}));
+                node.error(RED._("box.error.refresh-token-error",{message:data.error.message}));
                 return;
             }
-            for (var i = 0; i < data.items.length; i++) {
-                var cal = data.items[i];
-                if (cal.primary) {
-                    node.calendars.primary = cal;
-                }
-                node.calendars[cal.id] = cal;
+            // console.log("refreshed: " + require('util').inspect(data));
+            credentials.accessToken = data.access_token;
+            if (data.refresh_token) {
+                credentials.refreshToken = data.refresh_token;
             }
-            cb(null);
+            credentials.expiresIn = data.expires_in;
+            credentials.expireTime =
+                data.expires_in + (new Date().getTime()/1000);
+            credentials.tokenType = data.token_type;
+            RED.nodes.addCredentials(node.id, credentials);
+            if (typeof cb !== undefined) {
+                cb();
+            }
         });
+    };
+
+    BoxNode.prototype.request = function(req, retries, cb) {
+        var node = this;
+        if (typeof retries === 'function') {
+            cb = retries;
+            retries = 1;
+        }
+        if (typeof req !== 'object') {
+            req = { url: req };
+        }
+        req.method = req.method || 'GET';
+        if (!req.hasOwnProperty("json")) {
+            req.json = true;
+        }
+        // always set access token to the latest ignoring any already present
+        req.auth = { bearer: this.credentials.accessToken };
+        if (!this.credentials.expireTime ||
+            this.credentials.expireTime < (new Date().getTime()/1000)) {
+            if (retries === 0) {
+                node.error(RED._("box.error.too-many-refresh-attempts"));
+                cb(RED._("box.error.too-many-refresh-attempts"));
+                return;
+            }
+            node.warn(RED._("box.warn.refresh-token"));
+            node.refreshToken(function (err) {
+                if (err) {
+                    return;
+                }
+                node.request(req, 0, cb);
+            });
+            return;
+        }
+        return request(req, function(err, result, data) {
+            if (err) {
+                // handled in callback
+                return cb(err, data);
+            }
+            if (result.statusCode === 401 && retries > 0) {
+                retries--;
+                node.warn(RED._("box.warn.refresh-401"));
+                node.refreshToken(function (err) {
+                    if (err) {
+                        return cb(err, null);
+                    }
+                    return node.request(req, retries, cb);
+                });
+            }
+            if (result.statusCode >= 400) {
+                return cb(result.statusCode + ": " + data.message, data);
+            }
+            return cb(err, data);
+        });
+    };
+
+    BoxNode.prototype.folderInfo = function(parent_id, cb) {
+        this.request('https://api.box.com/2.0/folders/'+parent_id, cb);
+    };
+
+    BoxNode.prototype.resolvePath = function(path, parent_id, cb) {
+        var node = this;
+        if (typeof parent_id === 'function') {
+            cb = parent_id;
+            parent_id = 0;
+        }
+        if (typeof path === "string") {
+            // split path and remove empty string components
+            path = path.split("/").filter(function(e) { return e !== ""; });
+            // TODO: could also handle '/blah/../' and '/./' perhaps
+        } else {
+            path = path.filter(function(e) { return e !== ""; });
+        }
+        if (path.length === 0) {
+            return cb(null, parent_id);
+        }
+        var folder = path.shift();
+        node.folderInfo(parent_id, function(err, data) {
+            if (err) {
+                return cb(err, -1);
+            }
+            var entries = data.item_collection.entries;
+            for (var i = 0; i < entries.length; i++) {
+                if (entries[i].type === 'folder' &&
+                    entries[i].name === folder) {
+                    // found
+                    return node.resolvePath(path, entries[i].id, cb);
+                }
+            }
+            return cb(RED._("box.error.not-found"), -1);
+        });
+    };
+
+    BoxNode.prototype.resolveFile = function(path, parent_id, cb) {
+        var node = this;
+        if (typeof parent_id === 'function') {
+            cb = parent_id;
+            parent_id = 0;
+        }
+        if (typeof path === "string") {
+            // split path and remove empty string components
+            path = path.split("/").filter(function(e) { return e !== ""; });
+            // TODO: could also handle '/blah/../' and '/./' perhaps
+        } else {
+            path = path.filter(function(e) { return e !== ""; });
+        }
+        if (path.length === 0) {
+            return cb(RED._("box.error.missing-filename"), -1);
+        }
+        var file = path.pop();
+        node.resolvePath(path, function(err, parent_id) {
+            if (err) {
+                return cb(err, parent_id);
+            }
+            node.folderInfo(parent_id, function(err, data) {
+                if (err) {
+                    return cb(err, -1);
+                }
+                var entries = data.item_collection.entries;
+                for (var i = 0; i < entries.length; i++) {
+                    if (entries[i].type === 'file' &&
+                        entries[i].name === file) {
+                        // found
+                        return cb(null, entries[i].id);
+                    }
+                }
+                return cb(RED._("box.error.not-found"), -1);
+            });
+        });
+    };
+
+    function constructFullPath(entry) {
+        var parentPath = entry.path_collection.entries
+            .filter(function (e) { return e.id !== "0"; })
+            .map(function (e) { return e.name; })
+            .join('/');
+        return (parentPath !== "" ? parentPath+'/' : "") + entry.name;
     }
 
-    function validateEmail(email) {
-        var re = /\S+@\S+\.\S+/;
-        return re.test(email);
+    RED.httpAdmin.get('/box-credentials/auth', function(req, res) {
+        if (!req.query.clientId || !req.query.clientSecret ||
+            !req.query.id || !req.query.callback) {
+            res.send(400);
+            return;
+        }
+        var node_id = req.query.id;
+        var callback = req.query.callback;
+        var credentials = {
+            clientId: req.query.clientId,
+            clientSecret: req.query.clientSecret
+        };
+
+        var csrfToken = crypto.randomBytes(18).toString('base64').replace(/\//g, '-').replace(/\+/g, '_');
+        credentials.csrfToken = csrfToken;
+        credentials.callback = callback;
+        res.cookie('csrf', csrfToken);
+        res.redirect(url.format({
+            protocol: 'https',
+            hostname: 'app.box.com',
+            pathname: '/api/oauth2/authorize',
+            query: {
+                response_type: 'code',
+                client_id: credentials.clientId,
+                state: node_id + ":" + csrfToken,
+                redirect_uri: callback
+            }
+        }));
+        RED.nodes.addCredentials(node_id, credentials);
+    });
+
+    RED.httpAdmin.get('/box-credentials/auth/callback', function(req, res) {
+        if (req.query.error) {
+            return res.send('ERROR: '+ req.query.error + ': ' + req.query.error_description);
+        }
+        var state = req.query.state.split(':');
+        var node_id = state[0];
+        var credentials = RED.nodes.getCredentials(node_id);
+        if (!credentials || !credentials.clientId || !credentials.clientSecret) {
+            return res.send(RED._("box.error.no-credentials"));
+        }
+        if (state[1] !== credentials.csrfToken) {
+            return res.status(401).send(
+                RED._("box.error.token-mismatch")
+            );
+        }
+
+        request.post({
+            url: 'https://app.box.com/api/oauth2/token',
+            json: true,
+            form: {
+                grant_type: 'authorization_code',
+                code: req.query.code,
+                client_id: credentials.clientId,
+                client_secret: credentials.clientSecret,
+                redirect_uri: credentials.callback,
+            },
+        }, function(err, result, data) {
+            if (err) {
+                console.log("request error:" + err);
+                return res.send(RED._("box.error.something-broke"));
+            }
+            if (data.error) {
+                console.log("oauth error: " + data.error);
+                return res.send(RED._("box.error.something-broke"));
+            }
+            //console.log("data: " + require('util').inspect(data));
+            credentials.accessToken = data.access_token;
+            credentials.refreshToken = data.refresh_token;
+            credentials.expiresIn = data.expires_in;
+            credentials.expireTime = data.expires_in + (new Date().getTime()/1000);
+            credentials.tokenType = data.token_type;
+            delete credentials.csrfToken;
+            delete credentials.callback;
+            RED.nodes.addCredentials(node_id, credentials);
+            request.get({
+                url: 'https://api.box.com/2.0/users/me',
+                json: true,
+                auth: { bearer: credentials.accessToken },
+            }, function(err, result, data) {
+                if (err) {
+                    console.log('fetching box profile failed: ' + err);
+                    return res.send(RED._("box.error.profile-fetch-failed"));
+                }
+                if (result.statusCode >= 400) {
+                    console.log('fetching box profile failed: ' +
+                                result.statusCode + ": " + data.message);
+                    return res.send(RED._("box.error.profile-fetch-failed"));
+                }
+                if (!data.name) {
+                    console.log('fetching box profile failed: no name found');
+                    return res.send(RED._("box.error.profile-fetch-failed"));
+                }
+                credentials.displayName = data.name;
+                RED.nodes.addCredentials(node_id, credentials);
+                res.send(RED._("box.error.authorized"));
+            });
+        });
+    });
+
+    function BoxOutNode(n) {
+        RED.nodes.createNode(this,n);
+        this.filename = n.filename || "";
+        this.localFilename = n.localFilename || "";
+        this.box = RED.nodes.getNode(n.box);
+        var node = this;
+        if (!this.box || !this.box.credentials.accessToken) {
+            this.warn(RED._("box.warn.missing-credentials"));
+            return;
+        }
+
+        node.on("input", function(msg) {
+            var filename = node.filename || msg.filename;
+            if (filename === "") {
+                node.error(RED._("box.error.no-filename-specified"));
+                return;
+            }
+            var path = filename.split("/");
+            var basename = path.pop();
+            node.status({fill:"blue",shape:"dot",text:"box.status.resolving-path"});
+            var localFilename = node.localFilename || msg.localFilename;
+            if (!localFilename && typeof msg.payload === "undefined") {
+                return;
+            }
+            node.box.resolvePath(path, function(err, parent_id) {
+                if (err) {
+                    node.error(RED._("box.error.path-resolve-failed",{err:err.toString()}),msg);
+                    node.status({fill:"red",shape:"ring",text:"box.status.failed"});
+                    return;
+                }
+                node.status({fill:"blue",shape:"dot",text:"box.status.uploading"});
+                var r = node.box.request({
+                    method: 'POST',
+                    url: 'https://upload.box.com/api/2.0/files/content',
+                }, function(err, data) {
+                    if (err) {
+                        if (data && data.status === 409 &&
+                            data.context_info && data.context_info.conflicts) {
+                            // existing file, attempt to overwrite it
+                            node.status({fill:"blue",shape:"dot",text:"box.status.overwriting"});
+                            var r = node.box.request({
+                                method: 'POST',
+                                url: 'https://upload.box.com/api/2.0/files/'+
+                                    data.context_info.conflicts.id+'/content',
+                            }, function(err, data) {
+                                if (err) {
+                                    node.error(RED._("box.error.upload-failed",{err:err.toString()}),msg);
+                                    node.status({fill:"red",shape:"ring",text:"box.status.failed"});
+                                    return;
+                                } else {
+                                    msg.payload = "https://app.box.com/notes/" + data.entries[0].id || ''; 
+                                    node.send(msg);                       
+                                }
+                                node.status({});
+                            });
+                            var form = r.form();
+                            if (localFilename) {
+                                form.append('filename', fs.createReadStream(localFilename), { filename: basename });
+                            } else {
+                                form.append('filename', RED.util.ensureBuffer(msg.payload), { filename: basename });
+                            }
+                        } else {
+                            node.error(RED._("box.error.upload-failed",{err:err.toString()}),msg);
+                            node.status({fill:"red",shape:"ring",text:"box.status.failed"});
+                        }
+                        return;
+                    } else {
+                        msg.payload = "https://app.box.com/notes/" + data.entries[0].id || ''; 
+                        node.send(msg);                       
+                    }                    
+                    node.status({});
+                });
+                var form = r.form();                
+                if (localFilename) {
+                    form.append('filename', fs.createReadStream(localFilename), { filename: basename });
+                } else {
+                    form.append('filename', RED.util.ensureBuffer(msg.payload), { filename: basename });
+                }
+                form.append('parent_id', parent_id);                    
+            });                   
+        });
     }
+    RED.nodes.registerType("box out",BoxOutNode);
 };
