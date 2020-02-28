@@ -11,13 +11,17 @@
             "clientid": "Client Id",
             "secret": "Secret",
             "authenticate": "Authenticate with Box",
-            "boxuser": "Box User"
+            "boxuser": "Box User",
+            "urlTemplate": "Url Template", 
+            "urlFolder": "Url Folder"
         },
         "placeholder": {
             "pattern": "Filepattern",
             "name": "Name",
-            "filename": "Filename",
-            "local": "Local Filename"
+            "filename": "Filename.boxnote",
+            "local": "Local Filename",
+            "urlTemplate": "https://app.box.com/notes/xxxxxx", 
+            "urlFolder": "https://app.box.com/folder/xxxxxx"
         },
         "tip": {
             "redirect": "<p>Please configure the authorized <b>Redirect URIs</b> of your app to include the following url:</p>\n<code>__callback__</code>"
