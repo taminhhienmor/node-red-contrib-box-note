@@ -128,7 +128,7 @@ module.exports = function(RED) {
                 });
             }
             if (result.statusCode >= 400) {
-                return cb(result.statusCode + ": " + data.message, data);
+                return cb(result.statusCode + ": " + "Unsupported Media Type", data);
             }
             return cb(err, data);
         });
@@ -321,7 +321,7 @@ module.exports = function(RED) {
         }
 
         node.on("input", function(msg) {
-            var filename = node.filename || msg.filename;
+            var filename = node.filename || msg.filename || "";            
             if (filename === "") {
                 node.error(RED._("box.error.no-filename-specified"));
                 return;
@@ -365,17 +365,12 @@ module.exports = function(RED) {
                                         node.status({fill:"red",shape:"ring",text:"box.status.failed"});
                                         return;
                                     } else {
+                                        console.log("111111111111111111111");                                        
                                         msg.payload = "https://app.box.com/notes/" + data.entries[0].id || ''; 
                                         node.send(msg);                       
                                     }
                                     node.status({});
                                 });
-                                var form = r.form();
-                                if (localFilename) {
-                                    form.append('filename', fs.createReadStream(localFilename), { filename: basename });
-                                } else {
-                                    form.append('filename', RED.util.ensureBuffer(msg.payload), { filename: basename });
-                                }
                             } else {
                                 node.error(RED._("box.error.upload-failed",{err:err.toString()}),msg);
                                 node.status({fill:"red",shape:"ring",text:"box.status.failed"});
@@ -387,19 +382,12 @@ module.exports = function(RED) {
                         }                    
                         node.status({});
                     });
-                    var form = r.form();
-                    if (localFilename) {
-                        form.append('filename', fs.createReadStream(localFilename), { filename: basename });
-                    } else {
-                        form.append('filename', RED.util.ensureBuffer(msg.payload), { filename: basename });
-                    }
-                    form.append('parent_id', parent_id);
                 });
                 return;
             }
             var template = urlTemplate.split("/").pop()          
                 
-            var r = node.box.request({
+            node.box.request({
                 method: 'POST',
                 url: 'https://api.box.com/2.0/files/' + template + '/copy',
                 body: {
