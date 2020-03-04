@@ -1,0 +1,43 @@
+<script type="text/x-red" data-template-name="createFolder">
+    <div class="form-row">
+        <label for="node-input-box"><i class="fa fa-user"></i> <span data-i18n="box.label.box"></span></label>
+        <input type="text" id="node-input-box">
+    </div>
+    <div class="form-row node-input-nameFolder">
+        <label for="node-input-nameFolder"><i class="fa fa-file"></i> <span data-i18n="box.label.nameFolder"></span></label>
+        <input type="text" id="node-input-nameFolder" data-i18n="[placeholder]box.placeholder.nameFolder">
+    </div>
+    <div class="form-row node-input-urlFolder">
+        <label for="node-input-urlFolder"><i class="fa fa-globe"></i> <span data-i18n="box.label.urlFolder"></span></label>
+        <input type="text" id="node-input-urlFolder" data-i18n="[placeholder]box.placeholder.urlFolder">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="createFolder">
+    <p>Create new folder box</p>
+    <p>The nameFolder on Box is taken from the node <b>nameFolder</b> property or the <code>msg.nameFolder</code> property.</p>
+    <p>The urlFolder is taken template from url note box by the node <code>msg.urlFolder</code> property.</p>
+    <p>The message sent from the node will have properties:
+        <ul>        
+            <li><b>payload</b> - link url new folder box</li>
+        </ul>
+    </p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('createFolder',{
+        category: 'note-box',
+        color:"#C0DEED",
+        defaults: {
+            box: {type:"box-credentials",required:true},
+            nameFolder: {value:""},
+            urlFolder: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "folder.png",
+        align: "left",
+        label: 'Create Folder',
+        paletteLabel: 'Create Folder'
+    });
+</script>

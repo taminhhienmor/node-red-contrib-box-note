@@ -1,0 +1,37 @@
+<script type="text/x-red" data-template-name="getInfoFolder">
+  <div class="form-row">
+      <label for="node-input-box"><i class="fa fa-user"></i> <span data-i18n="box.label.box"></span></label>
+      <input type="text" id="node-input-box">
+  </div>
+  <div class="form-row node-input-urlFolder">
+      <label for="node-input-urlFolder"><i class="fa fa-globe"></i> <span data-i18n="box.label.urlFolder"></span></label>
+      <input type="text" id="node-input-urlFolder" data-i18n="[placeholder]box.placeholder.urlFolder">
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="getInfoFolder">
+  <p>Get infomation folder in Box</p>
+  <p>The urlFolder is taken template from url note box by the node <code>msg.urlFolder</code> property.</p>
+  <p>The message sent from the node will have properties:
+      <ul>        
+        <li><b>payload</b> - infomation folder in Box</li>
+      </ul>
+  </p>
+</script>
+
+<script type="text/javascript">
+  RED.nodes.registerType('getInfoFolder',{
+      category: 'note-box',
+      color:"#C0DEED",
+      defaults: {
+          box: {type:"box-credentials",required:true},
+          urlFolder: {value:""}
+      },
+      inputs:1,
+      outputs:1,
+      icon: "folder-info.png",
+      align: "left",
+      label: 'Info Folder',
+      paletteLabel: 'Info Folder'
+  });
+</script>

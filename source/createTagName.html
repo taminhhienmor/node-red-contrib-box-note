@@ -1,0 +1,44 @@
+<script type="text/x-red" data-template-name="createTagName">
+    <div class="form-row">
+        <label for="node-input-box"><i class="fa fa-user"></i> <span data-i18n="box.label.box"></span></label>
+        <input type="text" id="node-input-box">
+    </div>
+    <div class="form-row node-input-url">
+        <label for="node-input-url"><i class="fa fa-globe"></i> <span data-i18n="box.label.url"></span></label>
+        <input type="text" id="node-input-url" data-i18n="[placeholder]box.placeholder.url">
+    </div>
+    <div class="form-row node-input-tag">
+        <label for="node-input-tag"><i class="fa fa-file"></i> <span data-i18n="box.label.tag"></span></label>
+        <input type="text" id="node-input-tag" data-i18n="[placeholder]box.placeholder.tag">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="createTagName">
+    <p>Get infomation folder in Box</p>
+    <p>The url is taken template from url note file or folder in note box by the node <code>msg.url</code> property.</p>
+    <p>Tag name attaches to folder or file in note box<code>msg.tag</code> property. Example: tag1,tag2</p>
+    <p>The message sent from the node will have properties:
+        <ul>        
+            <li><b>payload</b> - Success/Fail</li>
+        </ul>
+    </p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('createTagName',{
+        category: 'note-box',
+        color:"#C0DEED",
+        defaults: {
+            box: {type:"box-credentials",required:true},
+            url: {value:""},
+            tag: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "tag.png",
+        align: "left",
+        label: 'Tag name',
+        paletteLabel: 'Tag name'
+    });
+</script>
+  
