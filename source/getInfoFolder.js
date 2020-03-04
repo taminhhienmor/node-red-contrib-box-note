@@ -24,23 +24,29 @@ module.exports = function(RED) {
                 } else {
                     var arrData = [];                    
                     data.item_collection.entries.forEach(element => {
-                        let obj = {};
-                        let url = ""
-                        if (element.type == "folder") {
-                            url = "https://app.box.com/folder/" + element.id || ""
-                        } else if (element.type == "file") {
-                            url = "https://app.box.com/notes/" + element.id || ""
-                        } else {
-                            url = "https://app.box.com/file"  + element.id || ""
+                        if(n.isFolder && element.type == "folder" || n.isFile && element.type == "file") {                          
+                            let obj = {};
+                            let type = element.type == "folder" ? 'folder' : 'notes'
+                            let url = "https://app.box.com/" + type + "/" + element.id || ""
+                            obj = {
+                                "name" : element.name,
+                                "type" : element.type,
+                                "url"  : url
+                            }
+                            arrData.push(obj);
                         }
-                        obj = {
-                            "name" : element.name,
-                            "type" : element.type,
-                            "url"  : url
-                        }
-                        arrData.push(obj);
                     });
-                    msg.payload = arrData || ''; 
+                    var objData = {
+                        "Folder inside": arrData,
+                        "Create at": data.created_at,
+                        "Modifile at": data.modified_at,
+                        "Size": data.size,
+                        "Create by": data.created_by,
+                        "Modified by":data.modified_by,
+                        "Shared link":data.shared_link,
+                        "Tags name":data.tags                        
+                    }
+                    msg.payload = objData || ''; 
                     node.send(msg);                       
                 }
                 node.status({});

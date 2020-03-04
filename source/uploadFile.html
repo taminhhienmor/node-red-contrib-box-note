@@ -1,0 +1,45 @@
+<script type="text/x-red" data-template-name="uploadFile">
+    <div class="form-row">
+        <label for="node-input-box"><i class="fa fa-user"></i> <span data-i18n="box.label.box"></span></label>
+        <input type="text" id="node-input-box">
+    </div>
+    <div class="form-row node-input-filename">
+         <label for="node-input-filename"><i class="fa fa-file"></i> <span data-i18n="box.label.filename"></span></label>
+         <input type="text" id="node-input-filename" data-i18n="[placeholder]box.placeholder.filename">
+    </div>
+    <div class="form-row node-input-localFilename">
+         <label for="node-input-localFilename"><i class="fa fa-file"></i> <span data-i18n="box.label.local"></span></label>
+         <input type="text" id="node-input-localFilename" data-i18n="[placeholder]box.placeholder.local">
+    </div>
+    <div class="form-row node-input-urlFolder">
+        <label for="node-input-urlFolder"><i class="fa fa-file"></i> <span data-i18n="box.label.urlFolder"></span></label>
+        <input type="text" id="node-input-urlFolder" data-i18n="[placeholder]box.placeholder.urlFolder">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="uploadFile">
+    <p>Box out node. Uploads content to Box.</p>
+    <p>The filename on Box is taken from the node <b>filename</b> property or the <code>msg.filename</code> property.</p>
+    <p>The content is taken from either the file pointed at by the node <b>localFilename</b> property, the
+    <code>msg.localFilename</code> property, or the actual contents of the <code>msg.payload</code> property.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('uploadFile',{
+        category: 'note-box',
+        color:"#C0DEED",
+        defaults: {
+            box: {type:"box-credentials",required:true},
+            filename: {value:""},
+            localFilename: {value:""},
+            urlFolder: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "upload.png",
+        align: "left",
+        label: 'Upload File',
+        paletteLabel: 'Upload File'
+    });
+</script>
+  

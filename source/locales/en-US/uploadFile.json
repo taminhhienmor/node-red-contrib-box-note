@@ -3,24 +3,21 @@
         "label": {
             "box": "Box",
             "pattern": "Filename Pattern",
-            "name": "Name",
+            "filename": "Filename",
+            "local": "Local File",
             "create": "Create your own app at",
             "copy": "Copy the project credentials here",
             "clientid": "Client Id",
             "secret": "Secret",
             "authenticate": "Authenticate with Box",
-            "boxuser": "Box User",
-            "nameFolder": "Name Folder", 
-            "urlFolder": "Url Folder",
-            "folder": "Folder",
-            "file": "File",
-            "type": "Type"
+            "boxuser": "Box User", 
+            "urlFolder": "Url Folder"
         },
         "placeholder": {
             "pattern": "Filepattern",
-            "name": "Name",
-            "urlFolder": "https://app.box.com/folder/xxxxxx", 
-            "nameFolder": "New Folder"
+            "filename": "Filename",
+            "local": "Local Filename", 
+            "urlFolder": "https://app.box.com/folder/xxxxxx"
         },
         "tip": {
             "redirect": "<p>Please configure the authorized <b>Redirect URIs</b> of your app to include the following url:</p>\n<code>__callback__</code>"
@@ -55,10 +52,9 @@
             "something-broke": "Something went wrong in the authentication process. Please try again.",
             "event-stream-initialize-failed": "failed to initialize event stream: __err__",
             "events-fetch-failed": "failed to fetch events: __err__",
-            "no-foldername-specified": "No foldername specified",
+            "no-filename-specified": "No filename specified",
             "path-resolve-failed": "failed to resolve path: __err__",
             "download-failed": "download failed: __err__",
-            "get-failed": "get infomation failed: __err__",
             "upload-failed": "failed upload: __err__"
         }
     }

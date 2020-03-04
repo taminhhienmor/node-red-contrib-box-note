@@ -7,6 +7,15 @@
       <label for="node-input-urlFolder"><i class="fa fa-globe"></i> <span data-i18n="box.label.urlFolder"></span></label>
       <input type="text" id="node-input-urlFolder" data-i18n="[placeholder]box.placeholder.urlFolder">
   </div>
+  <div class="form-row node-input-type">
+      <label for="node-input-type"><i class="fa fa-globe"></i> <span data-i18n="box.label.type"></span></label>
+      <div style="display: inline-flex;">
+        <input type="checkbox" id="node-input-isFolder" name="type" value="false">
+        <label for="node-input-isFolder">Folder</label>
+        <input type="checkbox" id="node-input-isFile" name="type" value="false">
+        <label for="node-input-isFile">File</label>
+      </div>
+  </div>
 </script>
 
 <script type="text/x-red" data-help-name="getInfoFolder">
@@ -25,7 +34,9 @@
       color:"#C0DEED",
       defaults: {
           box: {type:"box-credentials",required:true},
-          urlFolder: {value:""}
+          urlFolder: {value:""},
+          isFolder: {value:""},
+          isFile: {value:""}
       },
       inputs:1,
       outputs:1,
