@@ -21,10 +21,10 @@ module.exports = function(RED) {
                     node.error(RED._("box.error.get-failed",{err:err.toString()}),msg);
                     node.status({fill:"red",shape:"ring",text:"box.status.failed"});        
                     return;
-                } else {
-                    var arrData = [];                    
-                    data.item_collection.entries.forEach(element => {
-                        if(n.isFolder && element.type == "folder" || n.isFile && element.type == "file") {                          
+                } else {                 
+                    if(n.target == "true") {
+                        var arrData = [];                    
+                        data.item_collection.entries.forEach(element => {                       
                             let obj = {};
                             let type = element.type == "folder" ? 'folder' : 'notes'
                             let url = "https://app.box.com/" + type + "/" + element.id || ""
@@ -34,19 +34,20 @@ module.exports = function(RED) {
                                 "url"  : url
                             }
                             arrData.push(obj);
+                        });
+                        msg.payload = arrData || '';
+                    } else {
+                        var objData = {
+                            "Create at": data.created_at,
+                            "Modifile at": data.modified_at,
+                            "Size": data.size,
+                            "Create by": data.created_by,
+                            "Modified by":data.modified_by,
+                            "Shared link":data.shared_link,
+                            "Tags name":data.tags                        
                         }
-                    });
-                    var objData = {
-                        "Folder inside": arrData,
-                        "Create at": data.created_at,
-                        "Modifile at": data.modified_at,
-                        "Size": data.size,
-                        "Create by": data.created_by,
-                        "Modified by":data.modified_by,
-                        "Shared link":data.shared_link,
-                        "Tags name":data.tags                        
-                    }
-                    msg.payload = objData || ''; 
+                        msg.payload = objData || ''; 
+                    }                                       
                     node.send(msg);                       
                 }
                 node.status({});

@@ -8,12 +8,12 @@
       <input type="text" id="node-input-urlFolder" data-i18n="[placeholder]box.placeholder.urlFolder">
   </div>
   <div class="form-row node-input-type">
-      <label for="node-input-type"><i class="fa fa-globe"></i> <span data-i18n="box.label.type"></span></label>
+      <label for="node-input-type"><i class="fa fa-list-alt"></i> <span data-i18n="box.label.option"></span></label>
       <div style="display: inline-flex;">
-        <input type="checkbox" id="node-input-isFolder" name="type" value="false">
-        <label for="node-input-isFolder">Folder</label>
-        <input type="checkbox" id="node-input-isFile" name="type" value="false">
-        <label for="node-input-isFile">File</label>
+          <input type="radio" id="node-config-input-target-opentab" name="open-link-method" checked>
+          <label for="node-config-input-target-opentab"><span data-i18n="box.label.listFolder"></span></label>
+          <input type="radio" id="node-config-input-target-openthis" name="open-link-method" >
+          <label for="node-config-input-target-openthis"><span data-i18n="box.label.infomation"></span></label>
       </div>
   </div>
 </script>
@@ -36,13 +36,24 @@
           box: {type:"box-credentials",required:true},
           urlFolder: {value:""},
           isFolder: {value:""},
-          isFile: {value:""}
+          isFile: {value:""},
+          target: {value: 'true', validate :function() { return true; }}
       },
       inputs:1,
       outputs:1,
       icon: "folder-info.png",
       align: "left",
       label: 'Info Folder',
-      paletteLabel: 'Info Folder'
+      paletteLabel: 'Info Folder',
+      oneditprepare: function() {
+          document.getElementById('node-config-input-target-opentab').checked = (this.target === 'true');
+          document.getElementById('node-config-input-target-openthis').checked = (this.target === 'false');
+      },
+      oneditsave : function () {
+          var t = 'true';
+          if (document.getElementById('node-config-input-target-opentab').checked) { t = 'true'; }
+          if (document.getElementById('node-config-input-target-openthis').checked) { t = 'false'; }
+          this.target = t;
+      }
   });
 </script>

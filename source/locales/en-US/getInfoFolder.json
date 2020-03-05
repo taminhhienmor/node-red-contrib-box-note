@@ -14,7 +14,9 @@
             "urlFolder": "Url Folder",
             "folder": "Folder",
             "file": "File",
-            "type": "Type"
+            "option": "Options",
+            "infomation": "Infomation",
+            "listFolder": "List folder"
         },
         "placeholder": {
             "pattern": "Filepattern",

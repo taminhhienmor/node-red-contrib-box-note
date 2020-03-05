@@ -3,17 +3,26 @@
         <label for="node-input-box"><i class="fa fa-user"></i> <span data-i18n="box.label.box"></span></label>
         <input type="text" id="node-input-box">
     </div>
+    <div class="form-row node-input-urlFile">
+        <label for="node-input-urlFile"><i class="fa fa-file"></i> <span data-i18n="box.label.urlFile"></span></label>
+        <input type="text" id="node-input-urlFile" data-i18n="[placeholder]box.placeholder.urlFile">
+    </div>
     <div class="form-row node-input-filename">
         <label for="node-input-filename"><i class="fa fa-file"></i> <span data-i18n="box.label.filename"></span></label>
         <input type="text" id="node-input-filename" data-i18n="[placeholder]box.placeholder.filename">
-   </div>
+    </div>
 </script>
 
 <script type="text/x-red" data-help-name="downloadFile">
-    <p>Box out node. Uploads content to Box.</p>
-    <p>The filename on Box is taken from the node <b>filename</b> property or the <code>msg.filename</code> property.</p>
-    <p>The content is taken from either the file pointed at by the node <b>localFilename</b> property, the
-    <code>msg.localFilename</code> property, or the actual contents of the <code>msg.payload</code> property.</p>
+    <p>Download content on Box.</p>
+    <p>The urlFile thay you want to download from note box by the node <code>msg.urlFile</code> property.</p>
+    <p>The filename is saved on computer <b>filename</b> property or the <code>msg.filename</code> property.</p>
+    <p>The message sent from the node will have properties:
+        <ul>        
+          <li><b>payload</b> - success/fail</li>
+          <li><b>data</b> - data of file download</li>
+        </ul>
+    </p>
 </script>
 
 <script type="text/javascript">
@@ -22,6 +31,7 @@
         color:"#C0DEED",
         defaults: {
             box: {type:"box-credentials",required:true},
+            urlFile: {value:""},
             filename: {value:""}
         },
         inputs:1,

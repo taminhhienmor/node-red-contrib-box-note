@@ -11,13 +11,13 @@
             "secret": "Secret",
             "authenticate": "Authenticate with Box",
             "boxuser": "Box User", 
-            "urlFolder": "Url Folder"
+            "urlFile": "Url Folder"
         },
         "placeholder": {
             "pattern": "Filepattern",
-            "filename": "Filename",
+            "filename": "directory/filename",
             "local": "Local Filename", 
-            "urlFolder": "https://app.box.com/folder/xxxxxx"
+            "urlFile": "https://app.box.com/notes/xxxxxx"
         },
         "tip": {
             "redirect": "<p>Please configure the authorized <b>Redirect URIs</b> of your app to include the following url:</p>\n<code>__callback__</code>"
@@ -55,7 +55,8 @@
             "no-filename-specified": "No filename specified",
             "path-resolve-failed": "failed to resolve path: __err__",
             "download-failed": "download failed: __err__",
-            "upload-failed": "failed upload: __err__"
+            "upload-failed": "failed upload: __err__",
+            "writefail": "writefail: __err__"
         }
     }
 }
