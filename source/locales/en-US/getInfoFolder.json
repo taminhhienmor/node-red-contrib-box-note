@@ -15,8 +15,8 @@
             "folder": "Folder",
             "file": "File",
             "option": "Options",
-            "infomation": "Infomation",
-            "listFolder": "List folder"
+            "infomation": "Folder Infomation",
+            "listFolder": "Folder Content"
         },
         "placeholder": {
             "pattern": "Filepattern",

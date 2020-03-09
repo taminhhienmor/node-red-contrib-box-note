@@ -33,6 +33,7 @@ module.exports = function(RED) {
                 if (err) {
                     node.error(RED._("box.error.download-failed",{err:err.toString()}),msg);
                     node.status({fill:"red",shape:"ring",text:"box.status.failed"});
+                    return;
                 } else {
                     if ((typeof data === "object") && (!Buffer.isBuffer(data))) {
                         data = JSON.stringify(data);

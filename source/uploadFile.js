@@ -56,7 +56,8 @@ module.exports = function(RED) {
                                     node.status({fill:"red",shape:"ring",text:"box.status.failed"});
                                     return;
                                 } else {
-                                    msg.payload = "https://app.box.com/notes/" + data.entries[0].id || ''; 
+                                    var type = data.entries[0].name.split(".").pop() == "boxnote" ? "notes" : "file";
+                                    msg.payload = "https://app.box.com/" + type + "/" + data.entries[0].id || ''; 
                                     node.send(msg);                       
                                 }
                                 node.status({});
@@ -72,8 +73,9 @@ module.exports = function(RED) {
                             node.status({fill:"red",shape:"ring",text:"box.status.failed"});
                         }
                         return;
-                    } else {
-                        msg.payload = "https://app.box.com/notes/" + data.entries[0].id || ''; 
+                    } else {                        
+                        var type = data.entries[0].name.split(".").pop() == "boxnote" ? "notes" : "file";
+                        msg.payload = "https://app.box.com/" + type + "/" + data.entries[0].id || ''; 
                         node.send(msg);                       
                     }
                     node.status({});

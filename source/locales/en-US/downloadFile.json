@@ -11,7 +11,7 @@
             "secret": "Secret",
             "authenticate": "Authenticate with Box",
             "boxuser": "Box User", 
-            "urlFile": "Url Folder"
+            "urlFile": "Url File"
         },
         "placeholder": {
             "pattern": "Filepattern",
