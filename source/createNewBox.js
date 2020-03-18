@@ -450,5 +450,5 @@ module.exports = function(RED) {
             });                
         });
     }
-    RED.nodes.registerType("box",BoxOutNode);
+    RED.nodes.registerType("Create a Box Note",BoxOutNode);
 };

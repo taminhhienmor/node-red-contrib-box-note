@@ -1,0 +1,66 @@
+<script type="text/x-red" data-template-name="createCollaboration">
+    <div class="form-row">
+        <label for="node-input-box"><i class="fa fa-user"></i> <span data-i18n="box.label.box"></span></label>
+        <input type="text" id="node-input-box">
+    </div>
+    <div class="form-row node-input-urlShare">
+        <label for="node-input-urlShare"><i class="fa fa-globe"></i> <span data-i18n="box.label.urlShare"></span></label>
+        <input type="text" id="node-input-urlShare" data-i18n="[placeholder]box.placeholder.urlShare">
+    </div>
+    <div class="form-row node-input-collaborator">
+        <label for="node-input-collaborator"><i class="fa fa-envelope"></i> <span data-i18n="box.label.collaborator"></span></label>
+        <input type="text" id="node-input-collaborator" data-i18n="[placeholder]box.placeholder.collaborator">
+    </div>
+    <div class="form-row">
+        <label for="node-input-role"><i class="fa fa-edit"></i> <span data-i18n="box.label.role"></label>
+        <select id="node-input-role" type="text" text-center style="width: 70%;">
+          <option value="editor" default>editor</option>
+          <option value="viewer">viewer</option>
+          <option value="previewer">previewer</option>
+          <option value="uploader">uploader</option>
+          <option value="previewer uploader">previewer uploader</option>
+          <option value="viewer uploader">viewer uploader</option>
+          <option value="co-owner">co-owner</option>
+        </select>
+      </div> 
+  </script>
+  
+  <script type="text/x-red" data-help-name="createCollaboration">
+    <p>Get infomation folder in Box</p>
+    <p>The urlShare is taken template from url note box by the node <code>msg.urlShare</code> property.</p>
+    <p>The message sent from the node will have properties:
+        <ul>        
+          <li><b>payload</b> - infomation folder in Box</li>
+        </ul>
+    </p>
+  </script>
+  
+  <script type="text/javascript">
+    RED.nodes.registerType('createCollaboration',{
+        category: 'note-box',
+        color:"#C0DEED",
+        defaults: {
+            box: {type:"box-credentials",required:true},
+            urlShare: {value:""},
+            collaborator: {value:""},
+            role: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "folder-info.png",
+        align: "left",
+        label: 'Add Collaboration',
+        paletteLabel: 'Add Collaboration',
+        oneditprepare: function() {
+            document.getElementById('node-config-input-target-opentab').checked = (this.target === 'true');
+            document.getElementById('node-config-input-target-openthis').checked = (this.target === 'false');
+        },
+        oneditsave : function () {
+            var t = 'true';
+            if (document.getElementById('node-config-input-target-opentab').checked) { t = 'true'; }
+            if (document.getElementById('node-config-input-target-openthis').checked) { t = 'false'; }
+            this.target = t;
+        }
+    });
+  </script>
+  

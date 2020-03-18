@@ -142,7 +142,7 @@
 })();
 </script>
 
-<script type="text/x-red" data-template-name="box">
+<script type="text/x-red" data-template-name="Create a Box Note">
     <div class="form-row">
         <label for="node-input-box"><i class="fa fa-user"></i> <span data-i18n="box.label.box"></span></label>
         <input type="text" id="node-input-box">
@@ -161,7 +161,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="box">
+<script type="text/x-red" data-help-name="Create a Box Note">
     <p>Create new note box with template</p>
     <p>The filename on Box is taken from the node <b>filename</b> property or the <code>msg.filename</code> property.</p>
     <p>The urlTemplate is taken template from url note box by the node <code>msg.urlTemplate</code> property.</p>
@@ -174,7 +174,7 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('box',{
+    RED.nodes.registerType('Create a Box Note',{
         category: 'note-box',
         color:"#C0DEED",
         defaults: {
@@ -188,6 +188,7 @@
         outputs:1,
         icon: "box-img.png",
         align: "left",
-        label: 'Box'
+        label: 'Create a Box Note',
+        paletteLabel: 'Create a Box Note'
     });
 </script>

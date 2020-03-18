@@ -46,16 +46,21 @@ module.exports = function(RED) {
                         node.error(RED._("box.errors.writefail",{error:err.toString()}),msg);
                         return;
                     });
+                    msg.data = data;
                     wstream.on("open", function() {
-                        wstream.end(buf, function() {
-                            //                                
+                        wstream.end(buf, function(err) {
+                            if(err) {
+                                node.error(RED._("box.errors.writefail",{error:err.toString()}),msg);
+                                return; 
+                            }                                                        
+                            msg.payload = "Success!";
+                            node.send(msg);                                
                         });
                     })
-                    msg.data = data;
-                    msg.payload = "Success!";
-                    delete msg.error;
+                    // msg.data = data;
+                    // delete msg.error;
                     node.status({});
-                    node.send(msg);
+                    // node.send(msg);
                 }
             });
         });
