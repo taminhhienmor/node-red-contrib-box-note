@@ -26,11 +26,13 @@
   </script>
   
   <script type="text/x-red" data-help-name="createCollaboration">
-    <p>Get infomation folder in Box</p>
-    <p>The urlShare is taken template from url note box by the node <code>msg.urlShare</code> property.</p>
+    <p>Adds a collaboration for single user or multiple users to a file or folder in Box</p>
+    <p>The Url Share is taken url of file/folder in note box by the node <code>msg.urlShare</code> property. For example: msg.urlShare = "https://app.box.com/notes/636217384xxx"</p>
+    <p>The Collaborator is taken the email address of the users to grant access to the item by the node <code>msg.collaborator</code> property. For example: msg.collaborator = ["user1@gmail.com", "user2@gmail.com"]</p>
+    <p>The Role is taken the level of access granted which value is one of "editor", "viewer", "previewer", "uploader", "previewer uploader", "viewer uploader", "co-owner" by the node <code>msg.collaborator</code> property. For example: msg.role = "editor"</p>
     <p>The message sent from the node will have properties:
         <ul>        
-          <li><b>payload</b> - infomation folder in Box</li>
+          <li><b>payload</b> - return success</li>
         </ul>
     </p>
   </script>
@@ -47,7 +49,7 @@
         },
         inputs:1,
         outputs:1,
-        icon: "folder-info.png",
+        icon: "collaborator.png",
         align: "left",
         label: 'Add Collaboration',
         paletteLabel: 'Add Collaboration',
