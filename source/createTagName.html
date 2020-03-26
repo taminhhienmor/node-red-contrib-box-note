@@ -15,12 +15,16 @@
 </script>
 
 <script type="text/x-red" data-help-name="createTagName">
-    <p>Get infomation folder in Box</p>
-    <p>The url is taken template from url note file or folder in note box by the node <code>msg.url</code> property.</p>
-    <p>Tag name attaches to folder or file in note box<code>msg.tag</code> property. Example: tag1,tag2</p>
-    <p>The message sent from the node will have properties:
-        <ul>        
-            <li><b>payload</b> - Success/Fail</li>
+    <p>The tags for this item. These tags are shown in the Box web app and mobile apps next to an item. There is a limit of 100 tags per item, and 10,000 unique tags per enterprise.</p>
+    <p>Input Parameters:
+        <ul>
+            <li><b>Url</b> - The folder/file wants to add tag/tags name. The url folder on Box is taken from the node <b>Url</b> property or the <code>msg.[name]</code> property</li>
+            <li><b>Tag</b> - The name of tag. The name tag is taken from the node <b>Tag</b> property or the <code>msg.tag</code> property</li>. The name is splited by comma in property node or created from array string in property <code>msg.tag</code>.
+        </ul>
+    </p>
+    <p>Return values:
+        <ul>
+            <li><b>payload</b> Will either be link url created tag or provide an error state</li>
         </ul>
     </p>
 </script>

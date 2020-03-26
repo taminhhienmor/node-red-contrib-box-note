@@ -15,13 +15,16 @@
 </script>
 
 <script type="text/x-red" data-help-name="downloadFile">
-    <p>Download content on Box.</p>
-    <p>The urlFile thay you want to download from note box by the node <code>msg.urlFile</code> property.</p>
-    <p>The filename is saved on computer <b>filename</b> property or the <code>msg.filename</code> property.</p>
-    <p>The message sent from the node will have properties:
-        <ul>        
-          <li><b>payload</b> - success/fail</li>
-          <li><b>data</b> - data of file download</li>
+    <p>Download file to local.</p>
+    <p>Input Parameters:
+        <ul>
+            <li><b>Url File</b> - The file wants to download. The url file on Box is taken from the node <b>Url File</b> property or the <code>msg.[name]</code> property</li>
+            <li><b>Filename</b> - The name for the file that save in local. The name on Box is taken from the node <b>Name Folder</b> property or the <code>msg.nameFolder</code> property</li>
+        </ul>
+    </p>
+    <p>Return values:
+        <ul>
+            <li><b>payload</b> Will either be success or provide an error state</li>
         </ul>
     </p>
 </script>

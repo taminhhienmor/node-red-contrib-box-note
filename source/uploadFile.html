@@ -19,13 +19,17 @@
 </script>
 
 <script type="text/x-red" data-help-name="uploadFile">
-    <p>Uploads content to Box.</p>
-    <p>The filename on Box is taken from the node <b>filename</b> property or the <code>msg.filename</code> property.</p>
-    <p>The content is taken from either the file pointed at by the node <b>localFilename</b> property, the
-    <code>msg.localFilename</code> property, or the actual contents of the <code>msg.payload</code> property.</p>
-    <p>The message sent from the node will have properties:
-        <ul>        
-          <li><b>payload</b> - link url new note box</li>
+    <p>Uploads a small file to Box. For file sizes over 50MB we recommend using the Chunk Upload APIs.</p>
+    <p>Input Parameters:
+        <ul>
+            <li><b>Filename</b> - The name for the file upload. The name on Box is taken from the node <b>Filename</b> property or the <code>msg.filename</code> property</li>
+            <li><b>Local File</b> - The name for file in local. The name on Local is taken from the node <b>Local File</b> property or the <code>msg.localFilename</code> property</li>
+            <li><b>Url Folder</b> - The folder want to upload the this file. The url folder on Box is taken from the node <b>Url Folder</b> property or the <code>msg.[name]</code> property</li>
+        </ul>
+    </p>
+    <p>Return values:
+        <ul>
+            <li><b>payload</b> Will either be link url uploaded or provide an error state</li>
         </ul>
     </p>
 </script>

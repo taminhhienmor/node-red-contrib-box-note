@@ -1,13 +1,14 @@
 {
     "name": "node-red-contrib-box-note",
-    "version": "0.0.23",
+    "version": "0.1.0",
     "author": "minh hien <taminhhien.mor.vn@gmail.com>",
-    "description": "The simplest of simple nodes with box note",
+    "description": "A set of Node-RED nodes to access various function Box",
     "license": "Apache-2.0",
     "keywords": [
         "node-red",
         "note-box",
         "note",
+        "box",
         "box-notes"
     ],
     "repository": {
@@ -22,13 +23,13 @@
     ],
     "node-red": {
         "nodes": {
-            "createNewBox": "source/createNewBox.js",
+            "createCollaboration": "source/createCollaboration.js",
             "createFolder": "source/createFolder.js",
-            "getInfoFolder": "source/getInfoFolder.js",
+            "createNewBox": "source/createNewBox.js",
             "createTagName": "source/createTagName.js",
-            "uploadFile": "source/uploadFile.js",
             "downloadFile": "source/downloadFile.js",
-            "createCollaboration": "source/createCollaboration.js"
+            "getInfoFolder": "source/getInfoFolder.js",
+            "uploadFile": "source/uploadFile.js"
         }
     },
     "dependencies": {

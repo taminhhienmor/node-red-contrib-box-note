@@ -15,12 +15,16 @@
 </script>
 
 <script type="text/x-red" data-help-name="createFolder">
-    <p>Create new folder box</p>
-    <p>The nameFolder on Box is taken from the node <b>nameFolder</b> property or the <code>msg.nameFolder</code> property.</p>
-    <p>The urlFolder is taken template from url note box by the node <code>msg.urlFolder</code> property.</p>
-    <p>The message sent from the node will have properties:
-        <ul>        
-            <li><b>payload</b> - link url new folder box</li>
+    <p>Creates a new empty folder within the specified parent folder.</p>
+    <p>Input Parameters:
+        <ul>
+            <li><b>Name Folder</b> - The name for the new folder. The name on Box is taken from the node <b>Name Folder</b> property or the <code>msg.nameFolder</code> property</li>
+            <li><b>Url Folder</b> - The parent folder to create the new folder within. The url folder on Box is taken from the node <b>Url Folder</b> property or the <code>msg.[name]</code> property</li>
+        </ul>
+    </p>
+    <p>Return values:
+        <ul>
+            <li><b>payload</b> Will either be link url created or provide an error state</li>
         </ul>
     </p>
 </script>

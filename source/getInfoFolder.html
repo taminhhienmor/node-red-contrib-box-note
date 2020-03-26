@@ -19,50 +19,55 @@
 </script>
 
 <script type="text/x-red" data-help-name="getInfoFolder">
-  <p>Get infomation folder in Box</p>
-  <p>The urlFolder is taken template from url note box by the node <code>msg.urlFolder</code> property.</p>
-  <p>The message sent from the node will have properties:
-      <ul>        
-        <li><b>payload</b> - infomation folder in Box</li>
-      </ul>
+  <p>Retrieves details for a folder or folder contain, including the first 100 entries in the folder.</p>
+  <p>Input Parameters:
+    <ul>
+        <li><b>Url Folder</b> - The folder wants to get information. The url folder on Box is taken from the node <b>Url Folder</b> property or the <code>msg.[name]</code> property</li>
+        <li><b>Options</b> - Choose details for a folder or folder contain. <b>"True"</b> value is Folder Content (default), <b>"False"</b> value is Folder Infomation. The option is taken from the node <b>Options</b> property or the <code>msg.option</code> property</li>
+    </ul>
+  </p>
+  <p>Return values:
+    <ul>
+        <li><b>payload</b> Will either be details for a folder/folder contain or provide an error state</li>
+    </ul>
   </p>
 </script>
 
 <script type="text/javascript">
-  RED.nodes.registerType('getInfoFolder',{
-      category: 'note-box',
-      color:"#C0DEED",
-      defaults: {
-          box: {type:"box-credentials",required:true},
-          property: {value:"", validate: RED.validators.typedInput("propertyType")},
-          propertyType: { value:"str" },
-          option: {value: 'true', validate :function() { return true; }}
-      },
-      inputs:1,
-      outputs:1,
-      icon: "folder-info.png",
-      align: "left",
-      label: 'Info Folder',
-      paletteLabel: 'Info Folder',
-      oneditprepare: function() {
-          document.getElementById('node-config-input-option-content').checked = (this.option === 'true');
-          document.getElementById('node-config-input-option-information').checked = (this.option === 'false');
+  RED.nodes.registerType('getInfoFolder', {
+    category: 'note-box',
+    color: "#C0DEED",
+    defaults: {
+      box: { type: "box-credentials", required: true },
+      property: { value: "", validate: RED.validators.typedInput("propertyType") },
+      propertyType: { value: "str" },
+      option: { value: 'true', validate: function () { return true; } }
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: "folder-info.png",
+    align: "left",
+    label: 'Info Folder',
+    paletteLabel: 'Info Folder',
+    oneditprepare: function () {
+      document.getElementById('node-config-input-option-content').checked = (this.option === 'true');
+      document.getElementById('node-config-input-option-information').checked = (this.option === 'false');
 
-          $("#node-input-property").typedInput({default:this.propertyType||'str',types:['str','msg','flow','global']});
-          var labelPropertyType = $('.red-ui-typedInput-type-label').text();
-          if(labelPropertyType == "") {
-            $('.red-ui-typedInput-input').attr('placeholder', 'https://app.box.com/folder/xxxxxx');
-          } else {
-            $('.red-ui-typedInput-input').attr('placeholder', 'payload');  
-          }
-      },
-      oneditsave : function () {
-          var t = 'true';
-          if (document.getElementById('node-config-input-option-content').checked) { t = 'true'; }
-          if (document.getElementById('node-config-input-option-information').checked) { t = 'false'; }
-          this.option = t;
-
-          this.propertyType = $("#node-input-property").typedInput('type');
+      $("#node-input-property").typedInput({ default: this.propertyType || 'str', types: ['str', 'msg', 'flow', 'global'] });
+      var labelPropertyType = $('.red-ui-typedInput-type-label').text();
+      if (labelPropertyType == "") {
+        $('.red-ui-typedInput-input').attr('placeholder', 'https://app.box.com/folder/xxxxxx');
+      } else {
+        $('.red-ui-typedInput-input').attr('placeholder', 'payload');
       }
+    },
+    oneditsave: function () {
+      var t = 'true';
+      if (document.getElementById('node-config-input-option-content').checked) { t = 'true'; }
+      if (document.getElementById('node-config-input-option-information').checked) { t = 'false'; }
+      this.option = t;
+
+      this.propertyType = $("#node-input-property").typedInput('type');
+    }
   });
 </script>
