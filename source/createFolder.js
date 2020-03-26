@@ -8,16 +8,37 @@ module.exports = function(RED) {
             this.warn(RED._("box.warn.missing-credentials"));
             return;
         }
+        var propertyType = n.propertyType || "msg";
+        var property = n.property;
+        var globalContext = this.context().global;
+        var flowContext = this.context().flow;
 
-        node.on("input", function(msg) {            
+        node.on("input", function(msg) {
             var nameFolder = n.nameFolder || msg.nameFolder || "";
             if (nameFolder === "") {
                 node.error(RED._("box.error.no-foldername-specified"));
                 return;
             }
-            var urlFolder = n.urlFolder || msg.urlFolder
+            var urlFolder = "";
+            switch (propertyType) {
+                case "str":
+                    urlFolder = property
+                    break;
+                case "msg":
+                    urlFolder = msg[property]
+                    break;
+                case "flow":
+                    urlFolder = flowContext.get(property)
+                    break;
+                case "global":
+                    urlFolder = globalContext.get(property)
+                    break;
+                default:
+                    urlFolder = property
+                    break;
+            }
             var folder = urlFolder ? urlFolder.split("/").pop() : 0
-
+            
             node.box.request({
                 method: 'POST',
                 url: 'https://api.box.com/2.0/folders',

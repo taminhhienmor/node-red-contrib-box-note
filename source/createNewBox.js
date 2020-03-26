@@ -20,7 +20,6 @@ module.exports = function(RED) {
     var fs = require("fs");
     var request = require("request");
     var url = require("url");
-    var minimatch = require("minimatch");
 
     function BoxNode(n) {
         RED.nodes.createNode(this,n);
@@ -320,6 +319,15 @@ module.exports = function(RED) {
             return;
         }
 
+        var propertyType = n.propertyType || "msg";
+        var property = n.property;
+        var globalContext = this.context().global;
+        var flowContext = this.context().flow;
+        var propertyTypeTemplate = n.propertyTypeTemplate || "msg";
+        var propertyTemplate = n.propertyTemplate;
+        var globalContextTemplate = this.context().global;
+        var flowContextTemplate = this.context().flow;
+
         node.on("input", function(msg) {
             var filename = node.filename || msg.filename || "";
             if (filename === "") {
@@ -335,10 +343,44 @@ module.exports = function(RED) {
                 return;
             }
 
-            var urlFolder = n.urlFolder || msg.urlFolder
+            var urlFolder  = "";
+            switch (propertyType) {
+                case "str":
+                    urlFolder = property
+                    break;
+                case "msg":
+                    urlFolder = msg[property]
+                    break;
+                case "flow":
+                    urlFolder = flowContext.get(property)
+                    break;
+                case "global":
+                    urlFolder = globalContext.get(property)
+                    break;
+                default:
+                    urlFolder = property
+                    break;
+            }
             var folder = urlFolder ? urlFolder.split("/").pop() : 0
 
-            var urlTemplate = n.urlTemplate || msg.urlTemplate
+            var urlTemplate = "";
+            switch (propertyTypeTemplate) {
+                case "str":
+                    urlTemplate = propertyTemplate
+                    break;
+                case "msg":
+                    urlTemplate = msg[propertyTemplate]
+                    break;
+                case "flow":
+                    urlTemplate = flowContextTemplate.get(propertyTemplate)
+                    break;
+                case "global":
+                    urlTemplate = globalContextTemplate.get(propertyTemplate)
+                    break;
+                default:
+                    urlTemplate = propertyTemplate
+                    break;
+            }
             if(!urlTemplate || typeof(urlTemplate) == "undefined") {
                 node.box.resolvePath(path, function(err, parent_id) {
                     if (err) {

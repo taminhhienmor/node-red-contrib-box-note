@@ -3,9 +3,10 @@
         <label for="node-input-box"><i class="fa fa-user"></i> <span data-i18n="box.label.box"></span></label>
         <input type="text" id="node-input-box">
     </div>
-    <div class="form-row node-input-url">
-        <label for="node-input-url"><i class="fa fa-globe"></i> <span data-i18n="box.label.url"></span></label>
-        <input type="text" id="node-input-url" data-i18n="[placeholder]box.placeholder.url">
+    <div class="form-row">
+        <label for="node-input-property"><i class="fa fa-ellipsis-h"></i> <span data-i18n="box.label.url"></span></label>
+        <input type="text" id="node-input-property" style="width: 70%" />
+        <input type="hidden" id="node-input-outputs"/>
     </div>
     <div class="form-row node-input-tag">
         <label for="node-input-tag"><i class="fa fa-file"></i> <span data-i18n="box.label.tag"></span></label>
@@ -30,7 +31,8 @@
         color:"#C0DEED",
         defaults: {
             box: {type:"box-credentials",required:true},
-            url: {value:""},
+            property: {value:"", validate: RED.validators.typedInput("propertyType")},
+            propertyType: { value:"str" },
             tag: {value:""}
         },
         inputs:1,
@@ -38,7 +40,19 @@
         icon: "tag.png",
         align: "left",
         label: 'Tag name',
-        paletteLabel: 'Tag name'
+        paletteLabel: 'Tag name',
+        oneditprepare: function() {
+            $("#node-input-property").typedInput({default:this.propertyType||'str',types:['str','msg','flow','global']});
+            var labelPropertyType = $('.red-ui-typedInput-type-label').text();
+            if(labelPropertyType == "") {
+                $('.red-ui-typedInput-input').attr('placeholder', 'https://app.box.com/folder/xxxxxx');
+            } else {
+                $('.red-ui-typedInput-input').attr('placeholder', 'payload');  
+            }
+        },
+        oneditsave : function () {
+            this.propertyType = $("#node-input-property").typedInput('type');
+        }
     });
 </script>
   

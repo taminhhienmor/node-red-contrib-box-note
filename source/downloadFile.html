@@ -3,9 +3,10 @@
         <label for="node-input-box"><i class="fa fa-user"></i> <span data-i18n="box.label.box"></span></label>
         <input type="text" id="node-input-box">
     </div>
-    <div class="form-row node-input-urlFile">
-        <label for="node-input-urlFile"><i class="fa fa-file"></i> <span data-i18n="box.label.urlFile"></span></label>
-        <input type="text" id="node-input-urlFile" data-i18n="[placeholder]box.placeholder.urlFile">
+    <div class="form-row">
+        <label for="node-input-property"><i class="fa fa-ellipsis-h"></i> <span data-i18n="box.label.urlFile"></span></label>
+        <input type="text" id="node-input-property" style="width: 70%" />
+        <input type="hidden" id="node-input-outputs"/>
     </div>
     <div class="form-row node-input-filename">
         <label for="node-input-filename"><i class="fa fa-file"></i> <span data-i18n="box.label.filename"></span></label>
@@ -31,7 +32,8 @@
         color:"#C0DEED",
         defaults: {
             box: {type:"box-credentials",required:true},
-            urlFile: {value:""},
+            property: {value:"", validate: RED.validators.typedInput("propertyType")},
+            propertyType: { value:"str" },
             filename: {value:""}
         },
         inputs:1,
@@ -39,7 +41,19 @@
         icon: "download.png",
         align: "left",
         label: 'Download File',
-        paletteLabel: 'Download File'
+        paletteLabel: 'Download File',
+        oneditprepare: function() {
+            $("#node-input-property").typedInput({default:this.propertyType||'str',types:['str','msg','flow','global']});
+            var labelPropertyType = $('.red-ui-typedInput-type-label').text();
+            if(labelPropertyType == "") {
+                $('.red-ui-typedInput-input').attr('placeholder', 'https://app.box.com/notes/xxxxxx');
+            } else {
+                $('.red-ui-typedInput-input').attr('placeholder', 'payload');  
+            }
+        },
+        oneditsave : function () {
+            this.propertyType = $("#node-input-property").typedInput('type');
+        }
     });
 </script>
   

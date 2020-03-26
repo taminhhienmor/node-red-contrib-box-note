@@ -151,13 +151,13 @@
          <label for="node-input-filename"><i class="fa fa-file"></i> <span data-i18n="box.label.filename"></span></label>
          <input type="text" id="node-input-filename" data-i18n="[placeholder]box.placeholder.filename">
     </div>
-    <div class="form-row node-input-urlTemplate">
-        <label for="node-input-urlTemplate"><i class="fa fa-file"></i> <span data-i18n="box.label.urlTemplate"></span></label>
-        <input type="text" id="node-input-urlTemplate" data-i18n="[placeholder]box.placeholder.urlTemplate">
+    <div class="form-row">
+        <label for="node-input-propertyTemplate"><i class="fa fa-ellipsis-h"></i> <span data-i18n="box.label.urlTemplate"></span></label>
+        <input type="text" id="node-input-propertyTemplate" style="width: 70%" />
     </div>
-    <div class="form-row node-input-urlFolder">
-        <label for="node-input-urlFolder"><i class="fa fa-file"></i> <span data-i18n="box.label.urlFolder"></span></label>
-        <input type="text" id="node-input-urlFolder" data-i18n="[placeholder]box.placeholder.urlFolder">
+    <div class="form-row">
+        <label for="node-input-property"><i class="fa fa-ellipsis-h"></i> <span data-i18n="box.label.urlFolder"></span></label>
+        <input type="text" id="node-input-property" style="width: 70%" />
     </div>
 </script>
 
@@ -181,14 +181,30 @@
             box: {type:"box-credentials",required:true},
             filename: {value:""},
             localFilename: {value:""},
-            urlTemplate: {value:""},
-            urlFolder: {value:""}
+            property: {value:"", validate: RED.validators.typedInput("propertyType")},
+            propertyType: { value:"str" },
+            propertyTemplate: {value:"", validate: RED.validators.typedInput("propertyTypeTemplate")},
+            propertyTypeTemplate: { value:"str" }
         },
         inputs:1,
         outputs:1,
         icon: "box-img.png",
         align: "left",
         label: 'Create a Box Note',
-        paletteLabel: 'Create a Box Note'
+        paletteLabel: 'Create a Box Note',
+        oneditprepare: function() {
+            $("#node-input-property").typedInput({default:this.propertyType||'str',types:['str','msg','flow','global']});
+            $("#node-input-propertyTemplate").typedInput({default:this.propertyTypeTemplate||'str',types:['str','msg','flow','global']});
+            var labelPropertyType = $('.red-ui-typedInput-type-label').text();
+            if(labelPropertyType == "") {
+                $('.red-ui-typedInput-input').attr('placeholder', 'https://app.box.com/folder/xxxxxx');
+            } else {
+                $('.red-ui-typedInput-input').attr('placeholder', 'payload');  
+            }
+        },
+        oneditsave : function () {
+            this.propertyType = $("#node-input-property").typedInput('type');
+            this.propertyTypeTemplate = $("#node-input-propertyTemplate").typedInput('type');
+        }
     });
 </script>

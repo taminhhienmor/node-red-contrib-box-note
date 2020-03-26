@@ -11,9 +11,10 @@
          <label for="node-input-localFilename"><i class="fa fa-file"></i> <span data-i18n="box.label.local"></span></label>
          <input type="text" id="node-input-localFilename" data-i18n="[placeholder]box.placeholder.local">
     </div>
-    <div class="form-row node-input-urlFolder">
-        <label for="node-input-urlFolder"><i class="fa fa-globe"></i> <span data-i18n="box.label.urlFolder"></span></label>
-        <input type="text" id="node-input-urlFolder" data-i18n="[placeholder]box.placeholder.urlFolder">
+    <div class="form-row">
+        <label for="node-input-property"><i class="fa fa-ellipsis-h"></i> <span data-i18n="box.label.urlFolder"></span></label>
+        <input type="text" id="node-input-property" style="width: 70%" />
+        <input type="hidden" id="node-input-outputs"/>
     </div>
 </script>
 
@@ -37,14 +38,27 @@
             box: {type:"box-credentials",required:true},
             filename: {value:""},
             localFilename: {value:""},
-            urlFolder: {value:""}
+            property: {value:"", validate: RED.validators.typedInput("propertyType")},
+            propertyType: { value:"str" }
         },
         inputs:1,
         outputs:1,
         icon: "upload.png",
         align: "left",
         label: 'Upload File',
-        paletteLabel: 'Upload File'
+        paletteLabel: 'Upload File',
+        oneditprepare: function() {
+            $("#node-input-property").typedInput({default:this.propertyType||'str',types:['str','msg','flow','global']});
+            var labelPropertyType = $('.red-ui-typedInput-type-label').text();
+            if(labelPropertyType == "") {
+                $('.red-ui-typedInput-input').attr('placeholder', 'https://app.box.com/notes/xxxxxx');
+            } else {
+                $('.red-ui-typedInput-input').attr('placeholder', 'payload');  
+            }
+        },
+        oneditsave : function () {
+            this.propertyType = $("#node-input-property").typedInput('type');
+        }
     });
 </script>
   

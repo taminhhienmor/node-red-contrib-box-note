@@ -13,9 +13,31 @@ module.exports = function(RED) {
             return;
         }
 
+        var propertyType = n.propertyType || "msg";
+        var property = n.property;
+        var globalContext = this.context().global;
+        var flowContext = this.context().flow;
+
         node.on("input", function(msg) {
             var filename = n.filename || msg.filename;
-            var urlFile = node.urlFile || msg.urlFile;
+            var urlFile = "";
+            switch (propertyType) {
+                case "str":
+                    urlFile = property
+                    break;
+                case "msg":
+                    urlFile = msg[property]
+                    break;
+                case "flow":
+                    urlFile = flowContext.get(property)
+                    break;
+                case "global":
+                    urlFile = globalContext.get(property)
+                    break;
+                default:
+                    urlFile = property
+                    break;
+            }
             if (filename === "" || urlFile === "") {
                 node.error(RED._("box.error.no-filename-specified"));
                 return;

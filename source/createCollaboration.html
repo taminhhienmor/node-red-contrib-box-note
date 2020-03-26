@@ -3,9 +3,9 @@
         <label for="node-input-box"><i class="fa fa-user"></i> <span data-i18n="box.label.box"></span></label>
         <input type="text" id="node-input-box">
     </div>
-    <div class="form-row node-input-urlShare">
-        <label for="node-input-urlShare"><i class="fa fa-globe"></i> <span data-i18n="box.label.urlShare"></span></label>
-        <input type="text" id="node-input-urlShare" data-i18n="[placeholder]box.placeholder.urlShare">
+    <div class="form-row">
+        <label for="node-input-property"><i class="fa fa-ellipsis-h"></i> <span data-i18n="box.label.urlShare"></span></label>
+        <input type="text" id="node-input-property" style="width: 70%" />
     </div>
     <div class="form-row node-input-collaborator">
         <label for="node-input-collaborator"><i class="fa fa-envelope"></i> <span data-i18n="box.label.collaborator"></span></label>
@@ -43,7 +43,8 @@
         color:"#C0DEED",
         defaults: {
             box: {type:"box-credentials",required:true},
-            urlShare: {value:""},
+            property: {value:"", validate: RED.validators.typedInput("propertyType")},
+            propertyType: { value:"str" },
             collaborator: {value:""},
             role: {value:""}
         },
@@ -54,14 +55,16 @@
         label: 'Add Collaboration',
         paletteLabel: 'Add Collaboration',
         oneditprepare: function() {
-            document.getElementById('node-config-input-target-opentab').checked = (this.target === 'true');
-            document.getElementById('node-config-input-target-openthis').checked = (this.target === 'false');
+            $("#node-input-property").typedInput({default:this.propertyType||'str',types:['str','msg','flow','global']});
+            var labelPropertyType = $('.red-ui-typedInput-type-label').text();
+            if(labelPropertyType == "") {
+                $('.red-ui-typedInput-input').attr('placeholder', 'https://app.box.com/notes/xxxxxx');
+            } else {
+                $('.red-ui-typedInput-input').attr('placeholder', 'payload');  
+            }
         },
         oneditsave : function () {
-            var t = 'true';
-            if (document.getElementById('node-config-input-target-opentab').checked) { t = 'true'; }
-            if (document.getElementById('node-config-input-target-openthis').checked) { t = 'false'; }
-            this.target = t;
+            this.propertyType = $("#node-input-property").typedInput('type');
         }
     });
   </script>

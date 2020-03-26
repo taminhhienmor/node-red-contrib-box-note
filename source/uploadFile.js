@@ -12,6 +12,11 @@ module.exports = function(RED) {
             return;
         }
 
+        var propertyType = n.propertyType || "msg";
+        var property = n.property;
+        var globalContext = this.context().global;
+        var flowContext = this.context().flow;
+
         node.on("input", function(msg) {
             var filename = node.filename || msg.filename;
             if (filename === "") {
@@ -26,7 +31,24 @@ module.exports = function(RED) {
             if (!localFilename && typeof msg.payload === "undefined") {
                 return;
             }
-            var urlFolder = n.urlFolder || msg.urlFolder
+            var urlFolder = "";
+            switch (propertyType) {
+                case "str":
+                    urlFolder = property
+                    break;
+                case "msg":
+                    urlFolder = msg[property]
+                    break;
+                case "flow":
+                    urlFolder = flowContext.get(property)
+                    break;
+                case "global":
+                    urlFolder = globalContext.get(property)
+                    break;
+                default:
+                    urlFolder = property
+                    break;
+            }
             var folderID = urlFolder ? urlFolder.split("/").pop() : 0
 
             node.box.resolvePath(path, function(err, parent_id) {

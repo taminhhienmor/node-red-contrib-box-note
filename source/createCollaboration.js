@@ -7,10 +7,31 @@ module.exports = function(RED) {
         if (!this.box || !this.box.credentials.accessToken) {
             this.warn(RED._("box.warn.missing-credentials"));
             return;
-        }        
+        } 
+        var propertyType = n.propertyType || "msg";
+        var property = n.property;
+        var globalContext = this.context().global;
+        var flowContext = this.context().flow;       
 
         node.on("input", function(msg) {            
-            var urlShare = msg.urlShare || n.urlShare
+            var urlShare = "";
+            switch (propertyType) {
+                case "str":
+                    urlShare = property
+                    break;
+                case "msg":
+                    urlShare = msg[property]
+                    break;
+                case "flow":
+                    urlShare = flowContext.get(property)
+                    break;
+                case "global":
+                    urlShare = globalContext.get(property)
+                    break;
+                default:
+                    urlShare = property
+                    break;
+            }
             var collaborator = msg.collaborator || n.collaborator
             var role = msg.role || n.role
             var typeItem = "";
@@ -32,11 +53,12 @@ module.exports = function(RED) {
                 arrCollaborator = collaborator;
             }
 
+            var flagFirst = true;
             
             node.box.request({
                 method: 'GET',
                 url: 'https://api.box.com/2.0/users/me'
-            }, function(err1, data) { 
+            }, function(err1, data1) { 
                 if(err1) {
                     node.error(RED._("box.error.get-failed",{err:err1.toString()}),msg);
                     node.status({fill:"red",shape:"ring",text:"box.status.failed"});
@@ -67,9 +89,12 @@ module.exports = function(RED) {
                                     node.status({fill:"red",shape:"ring",text:"box.status.failed"});
                                     return;                        
                                 }                
-                            } else {          
-                                msg.payload = email.trim() + " be invited successfully!"             
-                                node.send(msg);                       
+                            } else {
+                                if(flagFirst) {
+                                    msg.payload = urlShare
+                                    node.send(msg);                       
+                                }
+                                flagFirst = false          
                             }
                             node.status({});
                         });              

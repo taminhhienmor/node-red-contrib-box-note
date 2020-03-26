@@ -8,11 +8,42 @@ module.exports = function(RED) {
             this.warn(RED._("box.warn.missing-credentials"));
             return;
         }
+        var option = n.option || true;
+        var propertyType = n.propertyType || "msg";
+        var property = n.property;
+        var globalContext = this.context().global;
+        var flowContext = this.context().flow;        
 
-        node.on("input", function(msg) {            
-            var urlFolder = n.urlFolder || msg.urlFolder
-            var folder = urlFolder ? urlFolder.split("/").pop() : 0
-            
+        node.on("input", function(msg) {
+            var urlFolder = "";
+            switch (propertyType) {
+                case "str":
+                    urlFolder = property
+                    break;
+                case "msg":
+                    urlFolder = msg[property]
+                    break;
+                case "flow":
+                    urlFolder = flowContext.get(property)
+                    break;
+                case "global":
+                    urlFolder = globalContext.get(property)
+                    break;
+                default:
+                    urlFolder = property
+                    break;
+            }
+
+            var folder = ""
+            if(urlFolder) {
+                folder = urlFolder.split("/").pop()
+            } else {
+                node.error(RED._("box.error.get-failed",{err:"urlFolder is invalid value"}),msg)
+                node.status({fill:"red",shape:"ring",text:"box.status.failed"});        
+                return;                
+            }
+            if(msg.option) option = msg.option
+
             node.box.request({
                 method: 'GET',
                 url: 'https://api.box.com/2.0/folders/' + folder + "?fields=created_at,modified_at,size,created_by,modified_by,shared_link,tags,item_collection,name"
@@ -22,7 +53,7 @@ module.exports = function(RED) {
                     node.status({fill:"red",shape:"ring",text:"box.status.failed"});        
                     return;
                 } else {                 
-                    if(n.target == "true") {
+                    if(n.option == "true") {
                         var arrData = [];                                            
                         data.item_collection.entries.forEach(element => {                       
                             let obj = {};

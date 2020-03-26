@@ -9,6 +9,11 @@ module.exports = function(RED) {
             return;
         }
 
+        var propertyType = n.propertyType || "msg";
+        var property = n.property;
+        var globalContext = this.context().global;
+        var flowContext = this.context().flow;
+
         node.on("input", function(msg) {
             var tag = n.tag || msg.tag
             if (tag === "" || typeof(tag) == "undefined") {
@@ -17,7 +22,24 @@ module.exports = function(RED) {
             }
             var tagArr = tag.split(",")
 
-            var url = n.url || msg.url
+            var url = "";
+            switch (propertyType) {
+                case "str":
+                    url = property
+                    break;
+                case "msg":
+                    url = msg[property]
+                    break;
+                case "flow":
+                    url = flowContext.get(property)
+                    break;
+                case "global":
+                    url = globalContext.get(property)
+                    break;
+                default:
+                    url = property
+                    break;
+            }
             if (url === "" || typeof(url) == "undefined") {
                 node.error(RED._("box.error.no-url-specified"));
                 return;
@@ -43,7 +65,7 @@ module.exports = function(RED) {
                     node.status({fill:"red",shape:"ring",text:"box.status.failed"});        
                     return;
                 } else {                        
-                    msg.payload = "Success!"; 
+                    msg.payload = url; 
                     node.send(msg);                       
                 }
                 node.status({});

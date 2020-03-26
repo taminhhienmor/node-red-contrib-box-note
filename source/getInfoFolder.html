@@ -3,19 +3,19 @@
       <label for="node-input-box"><i class="fa fa-user"></i> <span data-i18n="box.label.box"></span></label>
       <input type="text" id="node-input-box">
   </div>
-  <div class="form-row node-input-urlFolder">
-      <label for="node-input-urlFolder"><i class="fa fa-globe"></i> <span data-i18n="box.label.urlFolder"></span></label>
-      <input type="text" id="node-input-urlFolder" data-i18n="[placeholder]box.placeholder.urlFolder">
+  <div class="form-row">
+    <label for="node-input-property"><i class="fa fa-ellipsis-h"></i> <span data-i18n="box.label.urlFolder"></span></label>
+    <input type="text" id="node-input-property" style="width: 70%" />
   </div>
   <div class="form-row node-input-type">
       <label for="node-input-type"><i class="fa fa-list-alt"></i> <span data-i18n="box.label.option"></span></label>
       <div style="display: inline-flex; width: 300px;">
-          <input type="radio" id="node-config-input-target-opentab" style="width: 9%;" name="open-link-method" checked>
-          <label for="node-config-input-target-opentab" style="width: 67%; padding-left: 8px;"><span data-i18n="box.label.listFolder"></span></label>
-          <input type="radio" id="node-config-input-target-openthis" style="width: 18%;" name="open-link-method" >
-          <label for="node-config-input-target-openthis" style="width: 72%;"><span data-i18n="box.label.infomation"></span></label>
+          <input type="radio" id="node-config-input-option-content" style="width: 9%;" name="open-link-method" checked>
+          <label for="node-config-input-option-content" style="width: 67%; padding-left: 8px;"><span data-i18n="box.label.listFolder"></span></label>
+          <input type="radio" id="node-config-input-option-information" style="width: 18%;" name="open-link-method" >
+          <label for="node-config-input-option-information" style="width: 72%;"><span data-i18n="box.label.infomation"></span></label>
       </div>
-  </div>
+  </div>  
 </script>
 
 <script type="text/x-red" data-help-name="getInfoFolder">
@@ -34,10 +34,9 @@
       color:"#C0DEED",
       defaults: {
           box: {type:"box-credentials",required:true},
-          urlFolder: {value:""},
-          isFolder: {value:""},
-          isFile: {value:""},
-          target: {value: 'true', validate :function() { return true; }}
+          property: {value:"", validate: RED.validators.typedInput("propertyType")},
+          propertyType: { value:"str" },
+          option: {value: 'true', validate :function() { return true; }}
       },
       inputs:1,
       outputs:1,
@@ -46,14 +45,24 @@
       label: 'Info Folder',
       paletteLabel: 'Info Folder',
       oneditprepare: function() {
-          document.getElementById('node-config-input-target-opentab').checked = (this.target === 'true');
-          document.getElementById('node-config-input-target-openthis').checked = (this.target === 'false');
+          document.getElementById('node-config-input-option-content').checked = (this.option === 'true');
+          document.getElementById('node-config-input-option-information').checked = (this.option === 'false');
+
+          $("#node-input-property").typedInput({default:this.propertyType||'str',types:['str','msg','flow','global']});
+          var labelPropertyType = $('.red-ui-typedInput-type-label').text();
+          if(labelPropertyType == "") {
+            $('.red-ui-typedInput-input').attr('placeholder', 'https://app.box.com/folder/xxxxxx');
+          } else {
+            $('.red-ui-typedInput-input').attr('placeholder', 'payload');  
+          }
       },
       oneditsave : function () {
           var t = 'true';
-          if (document.getElementById('node-config-input-target-opentab').checked) { t = 'true'; }
-          if (document.getElementById('node-config-input-target-openthis').checked) { t = 'false'; }
-          this.target = t;
+          if (document.getElementById('node-config-input-option-content').checked) { t = 'true'; }
+          if (document.getElementById('node-config-input-option-information').checked) { t = 'false'; }
+          this.option = t;
+
+          this.propertyType = $("#node-input-property").typedInput('type');
       }
   });
 </script>
