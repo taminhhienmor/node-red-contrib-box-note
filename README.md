@@ -69,7 +69,7 @@ To get OAuth 2.0 authentication, follow to guideline: https://github.com/taminhh
   <li><b>payload</b> Will either be link url file created or provide an error state</li>
 </ul>
 </p>
-![Create-note](https://cdn.jsdelivr.net/gh/taminhhienmor/node-red-contrib-box-note/source/image/createNote.png)
+![Create-note](https://cdn.jsdelivr.net/gh/taminhhienmor/node-red-contrib-box-note/source/image/createNewBox.png)
 ``` node
 [{"id":"bf42b73.2a79948","type":"inject","z":"1d3bdf8d.565df","name":"","topic":"","payload":"","payloadType":"date","repeat":"","crontab":"","once":false,"onceDelay":0.1,"x":260,"y":140,"wires":[["e2a22742.9d3208"]]},{"id":"af785146.3ad42","type":"debug","z":"1d3bdf8d.565df","name":"","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"false","x":680,"y":140,"wires":[]},{"id":"e2a22742.9d3208","type":"Create a Box Note","z":"1d3bdf8d.565df","box":"","filename":"Test Create Box","localFilename":"","property":"https://app.box.com/folder/108099161365","propertyType":"str","propertyTemplate":"https://app.box.com/notes/640664677053","propertyTypeTemplate":"str","x":460,"y":140,"wires":[["af785146.3ad42"]]}]
 ```
