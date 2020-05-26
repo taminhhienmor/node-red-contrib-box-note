@@ -310,7 +310,7 @@ module.exports = function(RED) {
 
     function BoxOutNode(n) {
         RED.nodes.createNode(this,n);
-        this.filename = n.filename || "";
+        this.filename = n.payload || "";
         this.localFilename = n.localFilename || "";
         this.box = RED.nodes.getNode(n.box);
         var node = this;
@@ -329,7 +329,7 @@ module.exports = function(RED) {
         var flowContextTemplate = this.context().flow;
 
         node.on("input", function(msg) {
-            var filename = node.filename || msg.filename || "";
+            var filename = node.payload || msg.payload || "";
             if (filename === "") {
                 node.error(RED._("box.error.no-filename-specified"));
                 return;

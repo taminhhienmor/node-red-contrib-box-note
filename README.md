@@ -144,7 +144,7 @@ To get OAuth 2.0 authentication, follow to guideline: https://github.com/taminhh
 <p>Uploads a small file to Box. For file sizes over 50MB we recommend using the Chunk Upload APIs.</p>
 <p>Input Parameters:
     <ul>
-        <li><b>Filename</b> - The name for the file upload. The name on Box is taken from the node <b>Filename</b> property or the <code>msg.filename</code> property</li>
+        <li><b>Filename</b> - The name for the file upload. The name on Box is taken from the node <b>Filename</b> property or the <code>msg.payload</code> property</li>
         <li><b>Local File</b> - The name for file in local. The name on Local is taken from the node <b>Local File</b> property or the <code>msg.localFilename</code> property</li>
         <li><b>Url Folder</b> - The folder want to upload the this file. The url folder on Box is taken from the node <b>Url Folder</b> property or the <code>msg.[name]</code> property</li>
     </ul>
