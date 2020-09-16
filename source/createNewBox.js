@@ -329,7 +329,7 @@ module.exports = function(RED) {
         var flowContextTemplate = this.context().flow;
 
         node.on("input", function(msg) {
-            var filename = node.payload || msg.payload || "";
+            var filename = n.filename || msg.payload || "";
             if (filename === "") {
                 node.error(RED._("box.error.no-filename-specified"));
                 return;
