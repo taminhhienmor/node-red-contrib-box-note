@@ -331,6 +331,7 @@ module.exports = function(RED) {
         node.on("input", function(msg) {
             var filename = n.filename || msg.payload || "";
             if (filename === "") {
+                node.status({fill:"red",shape:"dot",text:"box.status.failed"});
                 node.error(RED._("box.error.no-filename-specified"));
                 return;
             }            
@@ -340,6 +341,7 @@ module.exports = function(RED) {
             node.status({fill:"blue",shape:"dot",text:"box.status.resolving-path"});
             var localFilename = node.localFilename || msg.localFilename;
             if (!localFilename && typeof msg.payload === "undefined") {
+                node.status({fill:"red",shape:"dot",text:"box.status.failed"});
                 return;
             }
 
