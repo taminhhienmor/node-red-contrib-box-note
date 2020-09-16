@@ -331,7 +331,7 @@ module.exports = function(RED) {
         node.on("input", function(msg) {
             var filename = n.filename || msg.payload || "";
             if (filename === "") {
-                node.status({fill:"red",shape:"dot",text:"box.status.failed"});
+                node.status({fill:"red",shape:"dot",text:"box.error.no-filename-specified"});
                 node.error(RED._("box.error.no-filename-specified"));
                 return;
             }            
@@ -419,6 +419,7 @@ module.exports = function(RED) {
                                 if (localFilename) {
                                     form.append('filename', fs.createReadStream(localFilename), { filename: basename });
                                 } else {
+                                    form.append('attributes', JSON.stringify({name: basename, parent: {id: folder}}));
                                     form.append('filename', RED.util.ensureBuffer(msg.payload), { filename: basename });
                                 }
                             } else {
@@ -437,6 +438,7 @@ module.exports = function(RED) {
                     if (localFilename) {
                         form.append('filename', fs.createReadStream(localFilename), { filename: basename });
                     } else {
+                        form.append('attributes', JSON.stringify({name: basename, parent: {id: folder}}));
                         form.append('filename', RED.util.ensureBuffer(msg.payload), { filename: basename });
                     }
                     form.append('parent_id', parent_id);
