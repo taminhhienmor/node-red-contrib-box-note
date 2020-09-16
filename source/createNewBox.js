@@ -419,8 +419,8 @@ module.exports = function(RED) {
                                 if (localFilename) {
                                     form.append('filename', fs.createReadStream(localFilename), { filename: basename });
                                 } else {
-                                    form.append('attributes', JSON.stringify({name: basename, parent: {id: folder}}));
-                                    form.append('filename', RED.util.ensureBuffer(msg.payload), { filename: basename });
+                                    form.append('attributes', JSON.stringify({"name": basename, "parent": {"id": folder}}));
+                                    form.append('file', RED.util.ensureBuffer(Date.now()), { filename: basename });
                                 }
                             } else {
                                 node.error(RED._("box.error.upload-failed",{err:err.toString()}),msg);
@@ -438,8 +438,8 @@ module.exports = function(RED) {
                     if (localFilename) {
                         form.append('filename', fs.createReadStream(localFilename), { filename: basename });
                     } else {
-                        form.append('attributes', JSON.stringify({name: basename, parent: {id: folder}}));
-                        form.append('filename', RED.util.ensureBuffer(msg.payload), { filename: basename });
+                        form.append('attributes', JSON.stringify({"name": basename, "parent": {"id": folder}}));
+                        form.append('file', RED.util.ensureBuffer(Date.now()), { filename: basename });
                     }
                     form.append('parent_id', parent_id);
                 });
@@ -481,7 +481,7 @@ module.exports = function(RED) {
                         if (localFilename) {
                             form.append('filename', fs.createReadStream(localFilename), { filename: basename });
                         } else {
-                            form.append('filename', RED.util.ensureBuffer(msg.payload), { filename: basename });
+                            form.append('filename', RED.util.ensureBuffer(Date.now()), { filename: basename });
                         }
                     } else {
                         node.error(RED._("box.error.upload-failed",{err:err.toString()}),msg);
