@@ -63,7 +63,7 @@ module.exports = function (RED) {
           let formData = {
             parent_id: parent_id,
             filename: {
-              value: localFilename ? fs.createReadStream("/dev/urandom") : RED.util.ensureBuffer(msg.payload),
+              value: localFilename ? fs.createReadStream(localFilename) : RED.util.ensureBuffer(msg.payload),
               options: {
                 filename: basename,
               },
@@ -81,7 +81,6 @@ module.exports = function (RED) {
                   // existing file, attempt to overwrite it
                   node.status({ fill: "blue", shape: "dot", text: "box.status.overwriting" });
                   let formData = {
-                    parent_id: parent_id,
                     filename: {
                       value: localFilename ? fs.createReadStream(localFilename) : RED.util.ensureBuffer(msg.payload),
                       options: {
