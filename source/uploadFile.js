@@ -69,7 +69,7 @@ module.exports = function(RED) {
                                 data.context_info && data.context_info.conflicts) {
                                 // existing file, attempt to overwrite it
                                 node.status({fill:"blue",shape:"dot",text:"box.status.overwriting"});
-                                var r = node.box.request({
+                                var resolveConflictRequest = node.box.request({
                                     method: 'POST',
                                     url: 'https://upload.box.com/api/2.0/files/'+
                                         data.context_info.conflicts.id+'/content',
@@ -85,7 +85,7 @@ module.exports = function(RED) {
                                     }
                                     node.status({});
                                 });
-                                var form = r.form();
+                                var form = resolveConflictRequest.form();
                                 if (localFilename) {
                                     form.append('filename', fs.createReadStream(localFilename), { filename: basename });
                                 } else {

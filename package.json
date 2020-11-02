@@ -1,6 +1,6 @@
 {
     "name": "node-red-contrib-box-note",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "author": "minh hien <taminhhien.mor.vn@gmail.com>",
     "description": "A set of Node-RED nodes to access various function Box",
     "license": "Apache-2.0",
