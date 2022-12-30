@@ -41,7 +41,7 @@
         "instagram-node": "^0.5.8",
         "is-utf8": "^0.2.1",
         "minimatch": "^3.0.4",
-        "mocha": "^6.2.2",
+        "mocha": "^10.2.0",
         "nock": "^11.7.1",
         "node-red": "~1.0.3",
         "oauth": "~0.9.11",
